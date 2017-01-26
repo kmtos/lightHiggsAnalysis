@@ -14,11 +14,9 @@ cmsenv
 
 git clone https://github.com/YOUR-GITHUB-USERNAME/lightHiggsAnalysis.git
 
-cd Tools
+cd lightHiggsAnalysis
 
 git remote add upstream https://github.com/MengyaoShi/lightHiggsAnalysis.git
-
-cd ..
 
 mkdir ~/Tau
 
@@ -50,7 +48,9 @@ cp /afs/cern.ch/work/m/mshi/public/CMSSW_8_0_17/src/DataFormats/MuonReco/src/cla
 
 cp /afs/cern.ch/work/m/mshi/public/CMSSW_8_0_17/src/DataFormats/TauReco/src/classes* TauReco/src
 
-cd ..
+mv DataFormats lightHiggsAnalysis
+
+rm -rf ~/Tau
 
 scram b -j16
 
