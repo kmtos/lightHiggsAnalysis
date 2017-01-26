@@ -166,7 +166,7 @@ You will obtain a .root file named "RegionB_selection.root" that stores events a
 
 Contains analyzers targeting for analyze di-muon behavior.
 
-### TauAnalyzer
+### Plotting
 
 we have plotting scripts that can give us correctly normalized plots of stack of all background. How to use it is that you cd into src/GGHAA2Mu2TauAnalysis/TauAnalyzer/test
 
@@ -175,6 +175,10 @@ and type into following command
  ./runStandardAnalysis.sh 1
 
 It is still under development. It aims to produce more maybe all plots that we are interested in just one go.  
+
+### QCDBackground
+Specifically analyze MC QCD background
+
 
 ##3. CollectEXO
 
