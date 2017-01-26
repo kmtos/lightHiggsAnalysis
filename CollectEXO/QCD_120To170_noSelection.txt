@@ -1,0 +1,11 @@
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_13.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_19.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_31.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_32.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_35.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_36.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_44.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_45.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_57.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_7.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/CRAB3_QCD_pt_120to170_no_Skim/170116_101652/0000/data_selection_8.root

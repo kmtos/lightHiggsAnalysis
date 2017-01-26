@@ -1,0 +1,1 @@
+root://130.104.133.225:1094//store/mc/RunIISpring16DR80/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8/AODSIM/premix_withHLT_80X_mcRun2_asymptotic_v14-v1/130000/126A61F2-1CA3-E611-8E67-0025905A607E.root

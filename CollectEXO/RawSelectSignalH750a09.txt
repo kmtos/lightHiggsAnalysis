@@ -1,0 +1,4 @@
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8/CRAB3_SignalH750a09_skim/161206_194656/0000/ZZ_data_no_selection_1.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8/CRAB3_SignalH750a09_skim/161206_194656/0000/ZZ_data_no_selection_2.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8/CRAB3_SignalH750a09_skim/161206_194656/0000/ZZ_data_no_selection_3.root
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8/CRAB3_SignalH750a09_skim/161206_194656/0000/ZZ_data_no_selection_4.root
