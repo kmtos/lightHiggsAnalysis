@@ -62,9 +62,6 @@ private:
 
   // ----------member data ---------------------------
 
-  TFile* out_;
-  std::string outFileName_;
-
   //input tag for reco tau collection
   edm::EDGetTokenT<reco::PFTauRefVector> tauTag_;
 
@@ -108,9 +105,11 @@ private:
   //minimum number of objects that must be found to pass the filter
   unsigned int minNumObjsToPassFilter_;
   //  std::map<std::string, TH1D*> histos1D_;
+  bool debug_;
+  TFile *out_;
   TH1F *TauPt_;
   TH1F *NPassing_;
-
+  std::string  outFileName_;
 };
 
 //
@@ -126,7 +125,6 @@ private:
 //
 template<class T>
 CustomTauSelector<T>::CustomTauSelector(const edm::ParameterSet& iConfig) :
-  outFileName_(iConfig.getParameter<std::string>("outFileName")),
   tauTag_(iConfig.existsAs<edm::InputTag>("tauTag") ? 
 	  consumes<reco::PFTauRefVector>(iConfig.getParameter<edm::InputTag>("tauTag")) : edm::EDGetTokenT<reco::PFTauRefVector>()),
   baseTauTag_(consumes<reco::PFTauCollection>(iConfig.getParameter<edm::InputTag>("baseTauTag"))),
@@ -140,16 +138,17 @@ CustomTauSelector<T>::CustomTauSelector(const edm::ParameterSet& iConfig) :
 		  consumes<edm::RefVector<std::vector<T> > >(iConfig.getParameter<edm::InputTag>("overlapCandTag")) : edm::EDGetTokenT<edm::RefVector<std::vector<T> > >()),
   overlapCandTag1_(iConfig.existsAs<edm::InputTag>("overlapCandTag1") ?
                   consumes<edm::RefVector<std::vector<T> > >(iConfig.getParameter<edm::InputTag>("overlapCandTag1")) : edm::EDGetTokenT<edm::RefVector<std::vector<T> > >()),
-//  tauDiscriminatorTags_(consumes<std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> > >(iConfig.getParameter<std::vector<edm::InputTag> >("tauDiscriminatorTags"))),
-//  tauDiscriminatorTags_(iConfig.getParameter<std::vector<edm::InputTag> >("tauDiscriminatorTags")),
   passDiscriminator_(iConfig.getParameter<bool>("passDiscriminator")),
   pTMin_(iConfig.getParameter<double>("pTMin")),
   etaMax_(iConfig.getParameter<double>("etaMax")),
   isoMax_(iConfig.getParameter<double>("isoMax")),
   dR_(iConfig.getParameter<double>("dR")),
-  minNumObjsToPassFilter_(iConfig.getParameter<unsigned int>("minNumObjsToPassFilter"))
+  minNumObjsToPassFilter_(iConfig.getParameter<unsigned int>("minNumObjsToPassFilter")),
+  outFileName_(iConfig.getParameter<std::string>("outFileName"))
 //  histos1D_()
 {
+  debug_=false;
+  
   typedef std::vector<edm::InputTag> vInputTag;
   vInputTag srcTauDiscriminatorTags_ = iConfig.getParameter<vInputTag>("tauDiscriminatorTags");
   for ( vInputTag::const_iterator it = srcTauDiscriminatorTags_.begin(); it != srcTauDiscriminatorTags_.end(); ++it )
@@ -205,10 +204,6 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   for (std::vector<edm::EDGetTokenT<reco::PFTauDiscriminator> >::const_iterator iTag = tauDiscriminatorTags_.begin();  iTag != tauDiscriminatorTags_.end(); ++iTag) 
     iEvent.getByToken(*iTag, pTauDiscriminators[iTag - tauDiscriminatorTags_.begin()]);
 
-/*  std::vector<edm::Handle<reco::PFTauDiscriminator> >  pTauDiscriminators(tauDiscriminatorTags_.size(), edm::Handle<reco::PFTauDiscriminator>());
-  for (std::vector<edm::InputTag>::const_iterator iTag = tauDiscriminatorTags_.begin(); iTag != tauDiscriminatorTags_.end(); ++iTag) 
-    iEvent.getByLabel(*iTag, pTauDiscriminators[iTag - tauDiscriminatorTags_.begin()]);
-*/
 
   //get jet collection
   edm::Handle<reco::PFJetCollection> pJets;
@@ -269,7 +264,10 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         {
   	  if ((*pMuonRemovalDecisions)[(*iTau)->jetRef()]) 
           {
-  	    TauPt_->Fill((*iTau)->pt());
+            if(debug_)
+            {
+  	      TauPt_->Fill((*iTau)->pt());
+            }
             tauColl->push_back(*iTau);
   	    ++nPassingTaus;
   	  }//if (*pMuonRemovalDecisions)[(*iTau)->jetRef()]
@@ -296,7 +294,8 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.put(tauColl);
 
   //if not enough taus passing cuts were found in this event, stop processing
-  NPassing_->Fill((nPassingTaus >= minNumObjsToPassFilter_));
+  if(debug_)
+    NPassing_->Fill((nPassingTaus >= minNumObjsToPassFilter_));
   return (nPassingTaus >= minNumObjsToPassFilter_);
 }
 
@@ -304,34 +303,35 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 template<class T>
 void CustomTauSelector<T>::beginJob()
 {
-//edm::Service< TFileService > fileService; 
-//thistos1D_["testDRValMap"]=fileService->make<TH1D>("testDRValMap","testDRValMap", 23, 0,7.0);
-//histos1D_["testDR"]=fileService->make<TH1D>("test","test",23,0,7.0);
-//histos1D_["tau_mu branching ratio"]=fileService->make<TH1D>("tau_mu branching ratio", "tau_mu branching rattio",2,0,2);
-//histos1D_["TauPt"]=fileService->make<TH1D>("TauPt", "TauPt",100,0,300);
-//histos1D_["nPassing"]=fileService->make<TH1D>("nPassing","nPassing",2,0,2);
-out_ = new TFile(outFileName_.c_str(), "RECREATE");
-TauPt_ = new TH1F("TauPt", "TauPt",100,0,300);
-NPassing_ = new TH1F("nPassing","nPassing",2,0,2);
+  if(debug_)
+  {
+
+    out_ = new TFile(outFileName_.c_str(), "RECREATE");
+    TauPt_ = new TH1F("TauPt", "TauPt",100,0,300);
+    NPassing_ = new TH1F("nPassing","nPassing",2,0,2);
+  }
 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 template<class T>
 void CustomTauSelector<T>::endJob() {
-  out_->cd();
+  if(debug_)
+  {
+    out_->cd();
 
-  TCanvas TauPtCanvas_("TauPtCanvas","",600,600);
-  TCanvas NPassingCanvas_("NPassingCanvas","",600,600);
+    TCanvas TauPtCanvas_("TauPtCanvas","",600,600);
+    TCanvas NPassingCanvas_("NPassingCanvas","",600,600);
 
-  Common::draw1DHistograms(TauPtCanvas_, TauPt_);
-  Common::draw1DHistograms(NPassingCanvas_, NPassing_);
+    Common::draw1DHistograms(TauPtCanvas_, TauPt_);
+    Common::draw1DHistograms(NPassingCanvas_, NPassing_);
 
-  TauPtCanvas_.Write();
-  NPassingCanvas_.Write();
+    TauPtCanvas_.Write();
+    NPassingCanvas_.Write();
 
-  out_->Write();
-  out_->Close();
+    out_->Write();
+    out_->Close();
+  }
 
 
 }

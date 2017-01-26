@@ -255,7 +255,7 @@ process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				minNumObjsToPassFilter=cms.uint32(2)
 )
 process.PtEtaCut = cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+                                 muonTag=cms.InputTag('Isolate'),
                                  Eta=cms.double(2.1),
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
@@ -409,7 +409,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
-    overlapCandTag1=cms.InputTag('Isolate','','SKIM'),
+    overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
     passDiscriminator = cms.bool(True),
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
@@ -431,7 +431,7 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector'),
-    overlapCandTag1=cms.InputTag('NonIsolate','','SKIM'),
+    overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
     passDiscriminator = cms.bool(False),
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
@@ -440,19 +440,6 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     minNumObjsToPassFilter = cms.uint32(1),
     outFileName=cms.string('muHadNoIsoTauSelector.root')
 )
-process.RECOAnalyze=cms.EDAnalyzer(
-        'MuMuTauTauRecoAnalyzer',
-        tauTag=cms.InputTag('muHadTauSelector','','SKIM'),
-        jetMuonMapTag=cms.InputTag('CleanJets','muonValMap','SKIM'),
-        Mu1Mu2= cms.InputTag('Mu1Mu2EtaCut'),
-        genParticleTag=cms.InputTag('genParticles'),
-        muHadMassBins=cms.vdouble(0.0, 2.0, 4.0, 6.0, 8.0, 10.0,12.0, 20.0),
-        FourBInvMassBins=cms.vdouble(0.0, 200.0,400.0,600.0, 800.0, 1000.0),
-	outFileName=cms.string('RECOAnalyzePlots.root'),
-	particleFlow=cms.InputTag('particleFlow'),
-        tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits', '',
-                                'SKIM')
-)
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
 #       process.TriggerAnalyzer0*
@@ -460,38 +447,29 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.HighestPtAndMuonOppositeSignDRSelector*
         process.Mu1Mu2PtRankMuonID*
         process.Mu1Mu2EtaCut*
+        process.Isolate*
         process.PtEtaCut*
         process.Mu45Selector
 )
 
-process.SelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
+process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
                                            process.PFTau*
                                            process.pfBTagging*
-					   process.muHadTauSelector
-					   #process.RECOAnalyze
-                                          # process.tauMuonAnalyzer*
-                                          # process.btagging
+					   process.muHadTauSelector*
+                                           process.muHadNonIsoTauSelector
 )
 
-
-#output
-process.SelectedOutput = cms.OutputModule(
-    "PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
-    outputCommands = skimEventContent.outputCommands,
-    fileName = cms.untracked.string('data_selection.root')
-    )
 
 process.antiSelectedOutput = cms.OutputModule(
     "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
     outputCommands = skimEventContent.outputCommands,
-    fileName = cms.untracked.string('data_anti_selection.root')
+    fileName = cms.untracked.string('RegionB_selection.root')
     )
 #sequences
 process.TFileService = cms.Service("TFileService",
-    fileName =  cms.string('ZZ_HLTSubfilter_Tfile.root')
+    fileName =  cms.string('RegionB_Tfile.root')
 )
 #no selection path
-process.p = cms.Path(process.SelectionSequence)
-process.e = cms.EndPath(process.SelectedOutput)
+process.p = cms.Path(process.antiSelectionSequence)
+process.e = cms.EndPath(process.antiSelectedOutput)
