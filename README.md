@@ -67,8 +67,11 @@ scram b -j16
 
 Folders are organized as following: 
 
-##1. "GGHAA2Mu2TauAnalysis/" Contains our major analysis code 
-SkimSequence folder
+##1. GGHAA2Mu2TauAnalysis 
+
+Contains our major analysis code 
+
+###SkimSequence folder
 
 https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/ is where our selection sequence developed. If can skim officially generated MC background down to order 10^-6 while keep most of signal.    
 
@@ -159,7 +162,13 @@ cmsRun RegionBSkim.py
 
 You will obtain a .root file named "RegionB_selection.root" that stores events after this selection sequence. In particular, this RegionBSkim.py gives you selection sequence of getting B region data defined as "isolated di-mu and non-isolated di-tau selection plus passing general selection sequence".
 
-##2 In TauAnalyzer, we have plotting scripts that can give us correctly normalized plots of stack of all background. How to use it is that you cd into src/GGHAA2Mu2TauAnalysis/TauAnalyzer/test
+###AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
+
+Contains analyzers targeting for analyze di-muon behavior.
+
+##2 TauAnalyzer
+
+we have plotting scripts that can give us correctly normalized plots of stack of all background. How to use it is that you cd into src/GGHAA2Mu2TauAnalysis/TauAnalyzer/test
 
 and type into following command
 
@@ -167,13 +176,17 @@ and type into following command
 
 It is still under development. It aims to produce more maybe all plots that we are interested in just one go.  
 
-##3. in CollectEXO, it contains all the files of background and signal Monte Carlo after selection sequence. These MC results are stored on eos space of higgs Exotic group.
+##3. in CollectEXO
+
+It contains all the files of background and signal Monte Carlo after selection sequence. These MC results are stored on eos space of higgs Exotic group.
 
 ##4.GetStatistics: Everytime you submit job to crab, it divide one single job to smaller jobs, and since selection sequence table is written in log files, this scirpt collects all these tables from your entire job area, and calculate the final statistics. 
 
 You need to change https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GetStatistics/Files.txt to sepecify where your log files are store at. Currently it focus on getting selection table for QCD Monte Carlo. But it's flexible and you can study anything you are interested in.
 
-##5. Tools package has a separate readme https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/Tools/README.md It contains packages has more general functions support this analysis. 
+##5. Tools 
+
+package has a separate readme https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/Tools/README.md It contains packages has more general functions support this analysis. 
 
 
 
