@@ -176,11 +176,13 @@ and type into following command
 
 It is still under development. It aims to produce more maybe all plots that we are interested in just one go.  
 
-##3. in CollectEXO
+##3. CollectEXO
 
 It contains all the files of background and signal Monte Carlo after selection sequence. These MC results are stored on eos space of higgs Exotic group.
 
-##4.GetStatistics: Everytime you submit job to crab, it divide one single job to smaller jobs, and since selection sequence table is written in log files, this scirpt collects all these tables from your entire job area, and calculate the final statistics. 
+##4.GetStatistics
+
+Everytime you submit job to crab, it divide one single job to smaller jobs, and since selection sequence table is written in log files, this scirpt collects all these tables from your entire job area, and calculate the final statistics. 
 
 You need to change https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GetStatistics/Files.txt to sepecify where your log files are store at. Currently it focus on getting selection table for QCD Monte Carlo. But it's flexible and you can study anything you are interested in.
 
