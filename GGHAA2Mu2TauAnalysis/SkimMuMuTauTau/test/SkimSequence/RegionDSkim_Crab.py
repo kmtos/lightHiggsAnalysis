@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/DrellYan.txt')
 process = cms.Process("SKIM")
 
 #PDG IDs
@@ -54,8 +53,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                 SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*mylist))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 
 process.source.inputCommands = cms.untracked.vstring("keep *")
 
@@ -238,104 +237,44 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
                                  minNumObjsToPassFilter=cms.uint32(2)
 
 )
-process.Mu1Mu2Analyzer=cms.EDAnalyzer(
-  'Mu1Mu2Analyzer',
-  genParticleTag=cms.InputTag('genParticles'),
-  Mu1Mu2=cms.InputTag('Mu1Mu2EtaCut'),
-  particleFlow=cms.InputTag('particleFlow'),
-  Mu2PtBins=cms.vdouble(0.0,3.0, 6.0, 9.0, 12.0,15.0, 18.0, 21.0, 24.0, 27.0, 30.0, 33.0, 36.0, 39.0, 42.0, 48.0, 54.0, 60.0, 66.0, 72.0, 78.0, 84.0, 90.0, 96.0, 102.0, 108.0,116.0, 124.0, 130.0, 136.0, 142.0, 148.0, 154.0, 160.0, 166.0, 172.0, 180.0, 186.0, 192.0, 200.0 ),
-  invMassBins=cms.vdouble(0.0 ,20.0,40.0,60.0, 80.0,100.0,120.0,140,160,180,200,500)
-
+process.Isolate=cms.EDFilter('CustomDimuonSelector',
+                                muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+                                isoMax=cms.double(-1),
+                                isoMin=cms.double(1.0),
+                                baseMuonTag=cms.InputTag('muons'),
+                                particleFlow=cms.InputTag('particleFlow'),
+                                minNumObjsToPassFilter=cms.uint32(2)
+)
+process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
+				muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+				isoMax=cms.double(-1),
+				isoMin=cms.double(1.0),
+				baseMuonTag=cms.InputTag('muons'),
+				particleFlow=cms.InputTag('particleFlow'),
+				minNumObjsToPassFilter=cms.uint32(2)
 )
 process.PtEtaCut = cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+                                 muonTag=cms.InputTag('Isolate'),
                                  Eta=cms.double(2.1),
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
 )
-process.genAMuSelector=cms.EDFilter(
- 'GenObjectProducer',
-    genParticleTag = cms.InputTag('genParticles'),
-    absMatchPDGIDs = cms.vuint32(MU_PDGID),     #choose a gen muon...
-    sisterAbsMatchPDGID = cms.uint32(MU_PDGID), #...whose sister is another gen muon...
-    genTauDecayIDPSet = AMuMuPSet,              #...and whose mother is a pseudoscalar a
-    primaryTauDecayType = cms.uint32(TAU_ALL),  #choose TAU_ALL when the gen particle is not a tau
-    sisterTauDecayType = cms.uint32(TAU_ALL),   #choose TAU_ALL when the gen particle sister is not a tau
-    primaryTauPTRank = cms.int32(ANY_PT_RANK),  #should always be ANY_PT_RANK
-    primaryTauHadronicDecayType = cms.int32(TAU_ALL_HAD), #choose TAU_ALL_HAD when the gen particle is not a tau
-    sisterHadronicDecayType = cms.int32(TAU_ALL_HAD),     #choose TAU_ALL_HAD when the gen particle sister is not a tau
-    primaryTauAbsEtaMax = cms.double(-1.0), #no cut on gen particle |eta|
-    primaryTauPTMin = cms.double(-1.0),     #no cut on gen particle pT
-    countSister = cms.bool(True),           #True if you want to put both muons in the output collection, False if just one
-    applyPTCuts = cms.bool(False),          #should always be False
-    countKShort = cms.bool(False),          #should always be False
-    minNumGenObjectsToPassFilter = cms.uint32(2), #EDFilter only returns true if >=2 muons are found
-    makeAllCollections = cms.bool(False) #should always be False
-    )
-process.genTauMuSelector = cms.EDFilter(
-    'GenObjectProducer',
-    genParticleTag = cms.InputTag('genParticles'),
-    absMatchPDGIDs = cms.vuint32(TAU_PDGID),     #choose a gen tau...
-    sisterAbsMatchPDGID = cms.uint32(TAU_PDGID), #...whose sister is another gen tau...
-    genTauDecayIDPSet = ATauTauPSet,             #...and whose mother is a pseudoscalar a
-    primaryTauDecayType = cms.uint32(TAU_MU),    #primary tau decay mode is mu...
-    sisterTauDecayType = cms.uint32(TAU_HAD),    #...sister tau decay mode is hadronic
-    primaryTauPTRank = cms.int32(ANY_PT_RANK),  #should always be ANY_PT_RANK
-    primaryTauHadronicDecayType = cms.int32(TAU_ALL_HAD), #choose TAU_ALL_HAD when the tau decay type is non-hadronic
-    sisterHadronicDecayType = cms.int32(TAU_ALL_HAD),     #choose TAU_ALL_HAD when the tau decay type is hadronic and you want any hadronic mode
-    primaryTauAbsEtaMax = cms.double(2.1),  #|eta| < 2.1 on muon from tau-->mu
-    primaryTauPTMin = cms.double(5.0),      #pT > 5 GeV on muon from tau-->mu
-    countSister = cms.bool(False),          #only put the muon from tau-->mu in the output collection (i.e. the object in the output collection will be the gen particle with |PDG ID| = 13 and status = 1 that is decayed from the tau
-    applyPTCuts = cms.bool(False),          #should always be False
-    countKShort = cms.bool(False),          #should always be False
-    minNumGenObjectsToPassFilter = cms.uint32(1), #EDFilter only returns true if >=1 tau-->mu is found satisfying pT, |eta|, and decay mode cuts
-    makeAllCollections = cms.bool(False) #should always be False
-    )
-
-
-process.filter_1 = hlt.hltHighLevel.clone(
-    TriggerResultsTag=cms.InputTag("TriggerResults", "","HLT2" ),
-    HLTPaths = [ 'HLT_Mu45_eta2p1_v3'],
-    throw = True
-    )
-process.genMatchedSelector = cms.EDFilter(
-    'GenMatchedMuonProducer',
-    genParticleTag = cms.InputTag('genParticles'),
-    selectedGenParticleTag = cms.InputTag('genAMuSelector'), #must be a reco::GenParticleRefVector
-    recoObjTag = cms.InputTag('PtEtaCut'),              #must be a reco::MuonRefVector
-    baseRecoObjTag = cms.InputTag('muons'),
-    genTauDecayIDPSet = AMuMuPSet,      #need to know the pseudoscalar a mother
-    applyPTCuts = cms.bool(False),        #should always be false
-    countKShort = cms.bool(False),        #should always be false
-    dR = cms.double(0.01),
-    Bins=cms.vdouble(2.0,4.0),                 #dR criteria for matching
-    minNumGenObjectsToPassFilter = cms.uint32(1) #EDFilter returns true if >=1 gen-matched reco muon is found
-    )
                                 
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),#for sure it's HLT2 since this is the only tuple in edmDumpEventContent
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),#selections are only SIM, RECO or HLT2
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
     hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
                             ),
     theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
     theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
-)
-
-process.AMuTriggerAnalyzer=cms.EDAnalyzer(
-   'AMuTriggerAnalyzer',
-   GenMatchedRecoMuonTag= cms.InputTag('genMatchedSelector'),
-   selectedGenParticleTag=cms.InputTag('genAMuSelector'),
-   MuPassTrigger=cms.InputTag('Mu45Selector'),
-   dRBins=cms.vdouble(0.0, 0.02, 0.04,0.06, 0.08, 0.10, 0.12, 0.14, 0.16, 0.18),
-   PtBins=cms.vdouble(0.0,0.5, 10.0, 15.0, 20.0, 30.0,40.0,60.0,80.0, 100.0, 200.0,300.0,400.0,500.0),
-   EtaBins=cms.vdouble(-5.0,-4.0,-3.0,-2.0,-1.8, -1.6, -1.4, -1.2, -1.0,-0.8, -0.6, -0.4, -0.2, 0.0,0.2, 0.4, 0.6, 0.8, 1.0,1.2, 1.4, 1.6, 1.8, 2.0,3.0,4.0,5.0)
 )
 
 process.Mu3=cms.EDFilter('VetoMuon',
@@ -365,45 +304,6 @@ process.tauMuonPtSelector=cms.EDFilter('PTETACUT',
                                  Pt=cms.double(5.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
 )
-process.tauMuonAnalyzer=cms.EDAnalyzer(
- 	'tauMuonAnalyzer',
- 	genParticleTag = cms.InputTag('genParticles'),
-	thirdHighestPtMuon=cms.InputTag('tauMuonPtSelector'),
-	Mu1Mu2=cms.InputTag('Mu1Mu2MassSelection'),
-        Mu3PtBins=cms.vdouble(0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0, 95.0, 100.0, 200.0, 300.0),
-        Mu3dRBins=cms.vdouble(0.0, 0.4, 0.8, 1.2, 1.6,2.0, 2.4, 2.8, 3.2, 3.6, 4.0,  4.4, 4.8, 5.2)
-
-)
-process.genMatchedTauMuSelector = cms.EDFilter(
-    'GenMatchedMuonProducer',
-    genParticleTag = cms.InputTag('genParticles'),
-    selectedGenParticleTag = cms.InputTag('genTauMuSelector'), #must be a reco::GenParticleRefVector
-    recoObjTag = cms.InputTag('Mu3ID'),              #must be a reco::MuonRefVector
-    baseRecoObjTag = cms.InputTag('muons'),
-    genTauDecayIDPSet = AMuMuPSet,      #need to know the pseudoscalar a mother
-    applyPTCuts = cms.bool(False),        #should always be false
-    countKShort = cms.bool(False),        #should always be false
-    dR = cms.double(0.05),
-    Bins=cms.vdouble(2.0,4.0),                 #dR criteria for matching
-    minNumGenObjectsToPassFilter = cms.uint32(1) #EDFilter returns true if >=1 gen-matched reco muon is found
-    )
-#search for a muon with pT > 25 GeV as in WHbb CMS AN-2012/349 and proceed if one can be found
-#this will produce a ref to the original muon collection
-
-#produce photon isolations
-
-#search for a tight PF isolated tight muon in |eta| < 2.1 with pT > 25 GeV
-#(see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Muon_Isolation_AN1 for
-#isolation definition; CMS AN-2012/349 uses loose isolation working point for WHbb muon selection)
-#this will produce a ref to the original muon collection
-
-#search for a muon with pT > 5 GeV as in HZZ4l analysis and proceed if one can be found
-#this will produce a ref to the original muon collection
-
-#search for soft muons
-#(see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Soft_Muon) not overlapping with
-#the W muon in |eta| < 2.4
-#this will produce a ref to the original muon collection
 
 #clean the jets of soft muons, then rebuild the taus
 
@@ -483,12 +383,11 @@ process.muHadTauSelector = cms.EDFilter(
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
     cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM')
-    #cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT','','SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector'),
-    overlapCandTag1= cms.InputTag('HighestPtAndMuonOppositeSignDR'),
+    overlapCandTag1= cms.InputTag('Mu1Mu2EtaCut'),
     passDiscriminator = cms.bool(True),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
@@ -497,23 +396,49 @@ process.muHadTauSelector = cms.EDFilter(
     minNumObjsToPassFilter = cms.uint32(1),
     outFileName=cms.string('muHadTauSelector.root')
     )
-process.RECOAnalyze=cms.EDAnalyzer(
-        'MuMuTauTauRecoAnalyzer',
-        tauTag=cms.InputTag('muHadTauSelector','','SKIM'),
-        jetMuonMapTag=cms.InputTag('CleanJets','muonValMap','SKIM'),
-        Mu1Mu2= cms.InputTag('Mu1Mu2MassSelection'),
-        genParticleTag=cms.InputTag('genParticles'),
-        muHadMassBins=cms.vdouble(0.0, 2.0, 4.0, 6.0, 8.0, 10.0,12.0, 20.0),
-        FourBInvMassBins=cms.vdouble(0.0, 200.0,400.0,600.0, 800.0, 1000.0)
-)
-#output
-process.noSelectedOutput = cms.OutputModule(
-    "PoolOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
-    outputCommands = skimEventContent.outputCommands,
-    fileName = cms.untracked.string('ZZ_data_no_selection.root')
+process.muHadIsoTauSelector = cms.EDFilter(
+    'CustomTauSepFromMuonSelector',
+    baseTauTag = cms.InputTag('hpsPFTauProducer', '', 'SKIM'),
+    tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
+                                'SKIM'),
+    tauDiscriminatorTags = cms.VInputTag(
+    cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
+    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
+    ),
+    jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
+    muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
+    overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
+    overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
+    passDiscriminator = cms.bool(True),
+    pTMin=cms.double(10.0),
+    etaMax = cms.double(2.4),
+    isoMax = cms.double(-1.0),
+    dR = cms.double(0.5),
+    minNumObjsToPassFilter = cms.uint32(1),
+    outFileName=cms.string('muHadIsoTauSelector.root')
     )
 
+process.muHadNonIsoTauSelector = cms.EDFilter(
+    'CustomTauSepFromMuonSelector',
+    tauTag = cms.InputTag('muHadTauSelector','','SKIM'),
+    baseTauTag = cms.InputTag('hpsPFTauProducer', '', 'SKIM'),
+    tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
+                                'SKIM'),
+    tauDiscriminatorTags = cms.VInputTag(
+    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewMwLT', '', 'SKIM')
+    ),
+    jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
+    muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
+    overlapCandTag = cms.InputTag('Mu45Selector'),
+    overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
+    passDiscriminator = cms.bool(False),
+    pTMin=cms.double(10.0),
+    etaMax = cms.double(2.4),
+    isoMax = cms.double(-1.0),
+    dR = cms.double(0.5),
+    minNumObjsToPassFilter = cms.uint32(1),
+    outFileName=cms.string('muHadNoIsoTauSelector.root')
+)
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
 #       process.TriggerAnalyzer0*
@@ -521,30 +446,29 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.HighestPtAndMuonOppositeSignDRSelector*
         process.Mu1Mu2PtRankMuonID*
         process.Mu1Mu2EtaCut*
+        process.Isolate*
         process.PtEtaCut*
         process.Mu45Selector
-#        process.tauMuonAnalyzer
 )
 
-process.noSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
+process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
                                            process.PFTau*
                                            process.pfBTagging*
-                                           process.muHadTauSelector
-                                          # process.tauMuonAnalyzer*
-                                          # process.btagging
-                                          # process.RECOAnalyze
+					   process.muHadTauSelector*
+                                           process.muHadNonIsoTauSelector
 )
 
-## #selection path
-## process.p = cms.Path(process.selectionSequence)
-## process.e = cms.EndPath(process.selectedOutput)
 
-#anti-selection path
-## process.p = cms.Path(process.antiSelectionSequence)
-## process.e = cms.EndPath(process.antiSelectedOutput)
+process.antiSelectedOutput = cms.OutputModule(
+    "PoolOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
+    outputCommands = skimEventContent.outputCommands,
+    fileName = cms.untracked.string('RegionB_selection.root')
+    )
+#sequences
 process.TFileService = cms.Service("TFileService",
-    fileName =  cms.string('ZZ_HLTSubfilter_Tfile.root')
+    fileName =  cms.string('RegionB_Tfile.root')
 )
 #no selection path
-process.p = cms.Path(process.noSelectionSequence)
-process.e = cms.EndPath(process.noSelectedOutput)
+process.p = cms.Path(process.antiSelectionSequence)
+process.e = cms.EndPath(process.antiSelectedOutput)
