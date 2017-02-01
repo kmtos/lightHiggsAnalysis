@@ -104,7 +104,7 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 // ----------member data ---------------------------
   edm::EDGetTokenT<reco::PFTauRefVector> tauTag_;
   edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
-  edm::EDGetTokenT<reco::GenParticleCollection> genParticleTag_;
+ // edm::EDGetTokenT<reco::GenParticleCollection> genParticleTag_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonRefVector>>  jetMuonMapTag_;
   std::vector<double> muHadMassBins_;
   std::vector<double> FourBInvMassBins_;
@@ -142,7 +142,7 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 MuMuTauTauRecoAnalyzer::MuMuTauTauRecoAnalyzer(const edm::ParameterSet& iConfig):
   tauTag_(consumes<reco::PFTauRefVector>(iConfig.getParameter<edm::InputTag>("tauTag"))),
   Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
-  genParticleTag_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleTag"))),
+ // genParticleTag_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleTag"))),
   jetMuonMapTag_(consumes<edm::ValueMap<reco::MuonRefVector> >(iConfig.getParameter<edm::InputTag>("jetMuonMapTag"))),
   muHadMassBins_(iConfig.getParameter<std::vector<double> >("muHadMassBins")),
   FourBInvMassBins_(iConfig.getParameter<std::vector<double>>("FourBInvMassBins")),
@@ -181,8 +181,8 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu1Mu2;
   iEvent.getByToken(Mu1Mu2_, pMu1Mu2);
   
-  edm::Handle<reco::GenParticleCollection> pGenParticles;
-   iEvent.getByToken(genParticleTag_, pGenParticles);
+  //edm::Handle<reco::GenParticleCollection> pGenParticles;
+  // iEvent.getByToken(genParticleTag_, pGenParticles);
 
   edm::Handle<edm::ValueMap<reco::MuonRefVector> > pMuonJetMap;
   iEvent.getByToken(jetMuonMapTag_, pMuonJetMap);
@@ -225,13 +225,14 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
  
   Iso=PtSum/(HighestPtMu1Mu2->pt());
 
-  std::vector<reco::GenParticle*> genObjPtrs; 
+/*  std::vector<reco::GenParticle*> genObjPtrs; 
    for(typename std::vector<reco::GenParticle>::const_iterator iGenObj=pGenParticles->begin(); iGenObj!=pGenParticles->end(); ++iGenObj)
    {
      const unsigned int absPDGID=fabs(iGenObj->pdgId());
      if(absPDGID==13)
        genObjPtrs.push_back(const_cast<reco::GenParticle*>(&(*iGenObj)));
    }
+*/
   double PUWeight = 1.0;
   double HiggsPTWeight = 1.0;
    double tauHadPTWeight = 1.0;
