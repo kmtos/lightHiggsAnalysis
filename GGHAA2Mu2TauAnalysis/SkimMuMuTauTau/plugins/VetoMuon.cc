@@ -65,7 +65,6 @@ class VetoMuon : public edm::EDFilter {
  edm::EDGetTokenT<reco::MuonRefVector> muonTag_;
  edm::EDGetTokenT<reco::MuonRefVector> vetoMuonTag_;
  double Cut_; 
- edm::EDGetTokenT<reco::GenParticleCollection>  genParticleTag_;
  unsigned int minNumObjsToPassFilter_;
 };
 
@@ -84,7 +83,6 @@ VetoMuon::VetoMuon(const edm::ParameterSet& iConfig):
   muonTag_(consumes<reco::MuonRefVector>(iConfig.getParameter<edm::InputTag>("muonTag"))),
  vetoMuonTag_(consumes<reco::MuonRefVector>(iConfig.getParameter<edm::InputTag>("vetoMuonTag"))),
   Cut_(iConfig.getParameter<double>("dRCut")),
-  genParticleTag_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleTag"))),
  minNumObjsToPassFilter_(iConfig.getParameter<unsigned int>("minNumObjsToPassFilter"))
 {
 
@@ -119,14 +117,7 @@ VetoMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::MuonRefVector> pVetoMuons;
   iEvent.getByToken(vetoMuonTag_, pVetoMuons);
 
-  edm::Handle<reco::GenParticleCollection> pGenParticles;
-  iEvent.getByToken(genParticleTag_, pGenParticles);
 
-  std::vector<reco::GenParticle*> genObjPtrs;
-  for (typename reco::GenParticleCollection::const_iterator iGenObj = pGenParticles->begin();
-       iGenObj != pGenParticles->end(); ++iGenObj) {
-    genObjPtrs.push_back(const_cast<reco::GenParticle*>(&(*iGenObj)));
-  }
 
   std::vector<int> vetoMuonRefKeys;
   if (pVetoMuons.isValid()) {
