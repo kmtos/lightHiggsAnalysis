@@ -382,7 +382,7 @@ process.muHadTauSelector = cms.EDFilter(
     tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
-    cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingOldDMs', '', 'SKIM')
+    cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
@@ -402,8 +402,8 @@ process.muHadIsoTauSelector = cms.EDFilter(
     tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
-    cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingOldDMs', '', 'SKIM'),
-    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT', '', 'SKIM')
+    cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
+    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
@@ -425,7 +425,7 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
-    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT', '', 'SKIM')
+    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewMwLT', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
