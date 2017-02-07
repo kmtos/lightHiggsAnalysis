@@ -254,8 +254,13 @@ process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				particleFlow=cms.InputTag('particleFlow'),
 				minNumObjsToPassFilter=cms.uint32(2)
 )
+process.AntiInvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
+   				    Mu1Mu2=cms.InputTag('Isolate'),
+				    minMass=cms.double(25.0),
+                                    maxMass=cms.double(-1)
+)
 process.PtEtaCut = cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('Isolate'),
+                                 muonTag=cms.InputTag('AntiInvMassCut'),
                                  Eta=cms.double(2.1),
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
@@ -265,14 +270,14 @@ process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT"),#TTBar background is v2
+    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
     #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),
+    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
@@ -447,6 +452,7 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.Mu1Mu2PtRankMuonID*
         process.Mu1Mu2EtaCut*
         process.Isolate*
+        process.AntiInvMassCut*
         process.PtEtaCut*
         process.Mu45Selector
 )
