@@ -83,7 +83,7 @@ HighestPtAndMuonSignDRSelector::HighestPtAndMuonSignDRSelector(const edm::Parame
   Cut_(iConfig.getParameter<double>("dRCut")),
   Mu2PtCut_(iConfig.getParameter<double>("Mu2PtCut")),
   oppositeSign_(iConfig.getParameter<bool>("oppositeSign")),
-  passdR_(iConfig.getParameter<bool>("passdR")),  
+  passdR_(iConfig.existsAs<bool>("passdR")? iConfig.getParameter<bool>("passdR"):true),  
   histos1D_()
 {
    //now do what ever initialization is needed
@@ -167,7 +167,7 @@ HighestPtAndMuonSignDRSelector::beginJob()
 {
   edm::Service<TFileService> fileService;
   histos1D_["deltaR"]=fileService->make<TH1D>("deltaR of trigger muon and nearest Mu1 or Mu2","deltaR of trigger muon and nearest Mu1 or Mu2", 10, 0.0, 5.0);
-  histos1D_["pt"]=fileService->make<TH1D>("pt of fake Mu2", "pt of fake Mu2", 10, 0, 10.0);
+  histos1D_["pt"]=fileService->make<TH1D>("pt of fake Mu2", "pt of fake Mu2", 10, 0, 100.0);
 
 }
 
