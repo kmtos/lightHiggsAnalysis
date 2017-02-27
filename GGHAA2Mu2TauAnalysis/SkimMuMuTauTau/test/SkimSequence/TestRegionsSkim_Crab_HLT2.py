@@ -233,8 +233,8 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
-  muon2ID=cms.string('loose'), # tightNew is another option
-  oppositeSign = cms.int32(1)    # 1 for same sign, -1 for opposite
+  muon2ID=cms.string('loose'),#tightNew is another option
+  oppositeSign = cms.int32(1) # 1 for same sign, -1 for opposite
 )
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
@@ -264,26 +264,24 @@ process.PtEtaCut = cms.EDFilter('PTETACUT',
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
 )
-
-
-
+                                
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT"),#TTBar background is v2
-    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),
+    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
+    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
-)                 
-               
+)
+
 process.Mu3=cms.EDFilter('VetoMuon',
   muonTag=cms.InputTag('MuonIWant'),
   vetoMuonTag=cms.InputTag('Mu1Mu2EtaCut'),
