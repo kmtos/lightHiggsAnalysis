@@ -417,14 +417,14 @@ process.muHadIsoTauSelector = cms.EDFilter(
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
     cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
-    cms.InputTag("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits", "", "SKIM")
-    #cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
+    #cms.InputTag("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits", "", "SKIM")
+    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
-    passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
+    passDiscriminator = cms.bool(),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
