@@ -1,0 +1,30 @@
+
+CRAB project directory:		/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DYHighMass_NoIsoDiTau_NoMassCut_FEB9
+Task name:			170227_193848:ktos_crab_DYHighMass_NoIsoDiTau_NoMassCut_FEB9
+Grid scheduler:			crab3@vocms0121.cern.ch
+Task status:			FAILED
+Task URL to use for HELP:	https://cmsweb.cern.ch/crabserver/ui/task/170227_193848%3Aktos_crab_DYHighMass_NoIsoDiTau_NoMassCut_FEB9
+Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=ktos&table=Mains&pattern=170227_193848%3Aktos_crab_DYHighMass_NoIsoDiTau_NoMassCut_FEB9
+
+Jobs status:			failed          2.3% ( 1/43)
+				finished       97.7% (42/43)
+
+Publication status:		finished       97.7% (42/43)
+				unsubmitted     2.3% ( 1/43)
+
+Output dataset:			/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/ktos-DYHighMass_NoIsoDiTau_NoMassCut_FEB9-d38c0b24a4692635872e6a8ff6709e82/USER
+Output dataset DAS URL:		https://cmsweb.cern.ch/das/request?input=%2FDYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8%2Fktos-DYHighMass_NoIsoDiTau_NoMassCut_FEB9-d38c0b24a4692635872e6a8ff6709e82%2FUSER&instance=prod%2Fphys03
+
+Error Summary:
+
+ 1 jobs failed with exit code 50660:
+
+	 1 jobs failed with following error message: (for example, job 11)
+
+		Job killed by HTCondor due to excessive memory use (RSS=2750 MB). Will not retry it.
+
+Have a look at https://twiki.cern.ch/twiki/bin/viewauth/CMSPublic/JobExitCodes for a description of the exit codes.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DYHighMass_NoIsoDiTau_NoMassCut_FEB9/crab.log
+
+Enter GRID pass phrase for this identity:Keyboard Interrupted
+

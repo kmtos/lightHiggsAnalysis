@@ -62,6 +62,7 @@ process.source.inputCommands = cms.untracked.vstring("keep *")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #for L1GtStableParametersRcd
+
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 #for HLT selection
@@ -76,7 +77,6 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 #process.load("RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi")
 process.load('Tools/CleanJets/cleanjets_cfi')
-
 #define a parameter set to be passed to all modules that utilize GenTauDecayID for signal taus
 AMuMuPSet = cms.PSet(momPDGID = cms.vint32(A_PDGID),
                                    chargedHadronPTMin = cms.double(0.0),
@@ -234,7 +234,7 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
   muon2ID=cms.string('loose'),#tightNew is another option
-  oppositeSign = cms.int32(1) # 1 for same sign, -1 for opposite
+  oppositeSign = cms.int32(-1) # 1 for SameSign, -1 for regular
 )
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
@@ -252,8 +252,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, 1.0 regular
-                                isoMin=cms.double(1.0),  # 1.0 for NoIsoDiMu, 0.0 regular
+                                isoMax=cms.double(1.0),  # -1 for NoIsoDiMu, 1.0 regular
+                                isoMin=cms.double(0.0),  # 1.0 for NoIsoDiMu, 0.0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -415,13 +415,14 @@ process.muHadIsoTauSelector = cms.EDFilter(
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
     cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
-    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
+    cms.InputTag("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits", "", "SKIM")
+    #cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
-    passDiscriminator = cms.bool(True),  # False for NoIsoDiTau, True regular
+    passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),

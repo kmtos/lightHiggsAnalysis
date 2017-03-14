@@ -1,0 +1,16 @@
+
+CRAB project directory:		/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DYHighMass_SeparatedDiMu_NoMassCut_FEB9
+Task name:			170227_192345:ktos_crab_DYHighMass_SeparatedDiMu_NoMassCut_FEB9
+Grid scheduler:			crab3@vocms0119.cern.ch
+Task status:			COMPLETED
+Task URL to use for HELP:	https://cmsweb.cern.ch/crabserver/ui/task/170227_192345%3Aktos_crab_DYHighMass_SeparatedDiMu_NoMassCut_FEB9
+Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=ktos&table=Mains&pattern=170227_192345%3Aktos_crab_DYHighMass_SeparatedDiMu_NoMassCut_FEB9
+
+Jobs status:			finished      100.0% (43/43)
+
+Publication status:		finished      100.0% (43/43)
+
+Output dataset:			/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/ktos-DYHighMass_SeparatedDiMu_NoMassCut_FEB9-4eba2705e6ca54abfea86e8326112871/USER
+Output dataset DAS URL:		https://cmsweb.cern.ch/das/request?input=%2FDYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8%2Fktos-DYHighMass_SeparatedDiMu_NoMassCut_FEB9-4eba2705e6ca54abfea86e8326112871%2FUSER&instance=prod%2Fphys03
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DYHighMass_SeparatedDiMu_NoMassCut_FEB9/crab.log
+

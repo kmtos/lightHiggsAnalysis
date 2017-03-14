@@ -1,0 +1,144 @@
+# Conditions read from  CMS_CONDITIONS  via FrontierProd 
+DEBUG 2017-03-14 23:24:14,958: 	 Executing command: 'submit'
+DEBUG 2017-03-14 23:24:14,958: 	 Found CRAB cache file /afs/cern.ch/user/k/ktos/.crab3
+DEBUG 2017-03-14 23:24:14,964: 	 Checking credentials
+DEBUG 2017-03-14 23:24:14,964: 	 Found proxy file /tmp/x509up_u60131
+DEBUG 2017-03-14 23:24:14,965: 	 Getting proxy life time left
+DEBUG 2017-03-14 23:24:15,468: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u60131 -timeleft
+ output : 43118
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:16,175: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u60131 -actimeleft
+ output : 43117
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:16,175: 	 Proxy valid for 11:58:38 hours
+INFO 2017-03-14 23:24:16,175: 	 Will use CRAB configuration file crabConfig_QCD_20to30.py
+DEBUG 2017-03-14 23:24:16,176: 	 Loading CRAB configuration file.
+DEBUG 2017-03-14 23:24:16,181: 	 Will use CRAB Analysis plugin (i.e. will run an analysis job type).
+DEBUG 2017-03-14 23:24:16,379: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ktos/CN=753412/CN=Kyle Martin Tos
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:16,380: 	 Checking credentials
+DEBUG 2017-03-14 23:24:16,380: 	 Found proxy file /tmp/x509up_u60131
+DEBUG 2017-03-14 23:24:16,380: 	 Getting proxy life time left
+DEBUG 2017-03-14 23:24:16,985: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u60131 -timeleft
+ output : 43117
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:17,490: 	 Executing : 
+ command : voms-proxy-info -file /tmp/x509up_u60131 -actimeleft
+ output : 43116
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:17,490: 	 Proxy valid for 11:58:37 hours
+DEBUG 2017-03-14 23:24:17,995: 	 Executing : 
+ command : env X509_USER_PROXY=/tmp/x509up_u60131 voms-proxy-info -fqan
+ output : /cms/Role=NULL/Capability=NULL
+/cms/uscms/Role=NULL/Capability=NULL
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:18,716: 	 Registering user credentials for server /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119|0108|0105).cern.ch
+DEBUG 2017-03-14 23:24:18,825: 	 Executing : 
+ command : openssl x509 -in ~/.globus/usercert.pem -subject -noout
+ output : subject= /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ktos/CN=753412/CN=Kyle Martin Tos
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:18,825: 	 Getting myproxy life time left for myproxy.cern.ch
+DEBUG 2017-03-14 23:24:18,825: 	 Calculating hash of /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ktos/CN=753412/CN=Kyle Martin Tos_cmsweb.cern.ch for credential name
+DEBUG 2017-03-14 23:24:19,033: 	 Executing : 
+ command : myproxy-info -l 4c8c935ff69398380a0a842a95f03b66eb0a8a33 -s myproxy.cern.ch
+ output : username: 4c8c935ff69398380a0a842a95f03b66eb0a8a33
+owner: /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ktos/CN=753412/CN=Kyle Martin Tos
+  renewal policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119|0108|0105).cern.ch
+  trusted retrieval policy: /DC=ch/DC=cern/OU=computers/CN=vocms(045|052|021|031|0118|0118a|0119|0108|0105).cern.ch
+  timeleft: 719:18:47  (30.0 days)
+
+ error: 
+ retcode : 0
+DEBUG 2017-03-14 23:24:19,035: 	 Myproxy is valid: 2589527
+DEBUG 2017-03-14 23:24:19,035: 	 Command use: submit
+DEBUG 2017-03-14 23:24:19,035: 	 Options use: ['crabConfig_QCD_20to30.py']
+DEBUG 2017-03-14 23:24:19,950: 	 CRABClient version: 3.3.1703
+DEBUG 2017-03-14 23:24:19,950: 	 Instance is prod
+DEBUG 2017-03-14 23:24:19,950: 	 Server base url is cmsweb.cern.ch
+DEBUG 2017-03-14 23:24:19,950: 	 Command url /crabserver/prod/workflow
+DEBUG 2017-03-14 23:24:19,950: 	 Started submission
+DEBUG 2017-03-14 23:24:19,950: 	 Working on /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9
+DEBUG 2017-03-14 23:24:20,874: 	 Loading required information from the environment
+DEBUG 2017-03-14 23:24:20,874: 	 Found CMSSW_8_0_17 for slc6_amd64_gcc530 with base /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17
+DEBUG 2017-03-14 23:24:20,874: 	 Loading required information from the environment
+DEBUG 2017-03-14 23:24:20,874: 	 Found CMSSW_8_0_17 for slc6_amd64_gcc530 with base /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17
+DEBUG 2017-03-14 23:24:20,887: 	 UNIQUE NAME: tarUUID 923243d7-be61-4bef-b020-a4d8b76c0a5a 
+DEBUG 2017-03-14 23:24:20,888: 	 self.config: from WMCore.Configuration import Configuration
+config = Configuration()
+config.section_('General')
+config.General.transferLogs = True
+config.General.transferOutputs = True
+config.General.workArea = 'crab_projects'
+config.General.requestName = 'QCD_20to30_NoIsoDiTau_NoMVA_FEB9'
+config.section_('JobType')
+config.JobType.psetName = '../SkimSequence/TestRegionsSkim_Crab_HLT2.py'
+config.JobType.pluginName = 'Analysis'
+config.section_('Data')
+config.Data.inputDataset = '/QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring16reHLT80-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/AODSIM'
+config.Data.outputDatasetTag = 'QCD_20to30_NoIsoDiTau_NoMVA_FEB9'
+config.Data.totalUnits = 3000000
+config.Data.unitsPerJob = 4300
+config.Data.inputDBS = 'global'
+config.Data.splitting = 'LumiBased'
+config.Data.outLFNDirBase = '/store/group/phys_higgs/HiggsExo/ktos'
+config.Data.publication = True
+config.section_('Site')
+config.Site.storageSite = 'T2_CH_CERN'
+config.section_('User')
+config.section_('Debug')
+
+DEBUG 2017-03-14 23:24:20,888: 	 self.config.JobType.psetName: ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+INFO 2017-03-14 23:24:20,888: 	 Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+INFO 2017-03-14 23:24:22,726: 	 Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+DEBUG 2017-03-14 23:24:22,726: 	 Writing CMSSW configuration to /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/inputs/PSet.py
+DEBUG 2017-03-14 23:24:23,718: 	 The following EDM output files will be collected: ['RegionB_selection.root']
+DEBUG 2017-03-14 23:24:23,718: 	 The following TFile output files will be collected: ['RegionB_Tfile.root']
+DEBUG 2017-03-14 23:24:23,718: 	 The following user output files will be collected: []
+DEBUG 2017-03-14 23:24:23,718: 	 Loading required information from the environment
+DEBUG 2017-03-14 23:24:23,718: 	 Found CMSSW_8_0_17 for slc6_amd64_gcc530 with base /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17
+DEBUG 2017-03-14 23:24:23,718: 	 Making tarball in /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/inputs/923243d7-be61-4bef-b020-a4d8b76c0a5adefault.tgz
+DEBUG 2017-03-14 23:24:23,724: 	 Checking directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/lib
+DEBUG 2017-03-14 23:24:23,724: 	 Adding directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/lib to tarball
+DEBUG 2017-03-14 23:24:25,060: 	 Checking directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/biglib
+DEBUG 2017-03-14 23:24:25,060: 	 Adding directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/biglib to tarball
+DEBUG 2017-03-14 23:24:25,061: 	 Checking directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/module
+DEBUG 2017-03-14 23:24:25,078: 	 Adding data directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/Tools/Common/interface to tarball
+DEBUG 2017-03-14 23:24:25,081: 	 Adding data directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/DataFormats/HepMCCandidate/interface to tarball
+DEBUG 2017-03-14 23:24:25,086: 	 Adding data directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/DataFormats/MuonReco/interface to tarball
+DEBUG 2017-03-14 23:24:25,101: 	 Adding data directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/DataFormats/JetReco/interface to tarball
+DEBUG 2017-03-14 23:24:25,130: 	 Adding data directory /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/DataFormats/TauReco/interface to tarball
+DEBUG 2017-03-14 23:24:25,422: 	 Uploading archive /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/inputs/923243d7-be61-4bef-b020-a4d8b76c0a5adefault.tgz (2.181641.1 MB) to the CRAB cache. Using URI https://cmsweb.cern.ch/crabcache
+DEBUG 2017-03-14 23:24:26,952: 	 Loading required information from the environment
+DEBUG 2017-03-14 23:24:26,952: 	 Found CMSSW_8_0_17 for slc6_amd64_gcc530 with base /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17
+DEBUG 2017-03-14 23:24:26,952: 	 Making tarball in /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/inputs/debugFiles.tgz
+DEBUG 2017-03-14 23:24:26,958: 	 Uploading archive /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/inputs/debugFiles.tgz (5 KB) to the CRAB cache. Using URI https://cmsweb.cern.ch/crabcache
+DEBUG 2017-03-14 23:24:27,402: 	 Result uploading input files: 82cf9f68cc027c9f1f188661d4ea7344d5097950a67662ccb8ad810821f07dd8.tar.gz 
+WARNING 2017-03-14 23:24:27,402: 	 Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+INFO 2017-03-14 23:24:27,402: 	 Sending the request to the server
+DEBUG 2017-03-14 23:24:27,403: 	 Submitting {'maxjobruntime': 1250, 'extrajdl': [], 'ignorelocality': 0, 'savelogsflag': 1, 'useparent': 0, 'asyncdest': 'T2_CH_CERN', 'algoargs': 4300, 'cachefilename': '82cf9f68cc027c9f1f188661d4ea7344d5097950a67662ccb8ad810821f07dd8.tar.gz', 'numcores': 1, 'addoutputfiles': [], 'generator': 'pythia', 'maxmemory': 2000, 'publishdbsurl': 'https://cmsweb.cern.ch/dbs/prod/phys03/DBSWriter', 'priority': 10, 'jobsw': 'CMSSW_8_0_17', 'edmoutfiles': ['RegionB_selection.root'], 'userfiles': [], 'primarydataset': '', 'inputdata': '/QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunIISpring16reHLT80-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1/AODSIM', 'lfn': '/store/group/phys_higgs/HiggsExo/ktos', 'dryrun': 0, 'workflow': 'crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9', 'cacheurl': u'https://cmsweb.cern.ch/crabcache', 'nonprodsw': 0, 'tfileoutfiles': ['RegionB_Tfile.root'], 'oneEventMode': 0, 'debugfilename': '0b11e4ca8f27bb959ef5e88d95b7d1504d488445880e99dc3e5dcbec63c572c5.tar.gz', 'saveoutput': 1, 'publication': 1, 'jobarch': 'slc6_amd64_gcc530', 'totalunits': 3000000, 'splitalgo': 'LumiBased', 'ignoreglobalblacklist': 0, 'nonvaliddata': 0, 'dbsurl': 'https://cmsweb.cern.ch/dbs/prod/global/DBSReader', 'publishgroupname': 0, 'jobtype': 'Analysis', 'publishname2': 'QCD_20to30_NoIsoDiTau_NoMVA_FEB9'} 
+DEBUG 2017-03-14 23:24:27,403: 	 Encoded submit request: maxjobruntime=1250&ignorelocality=0&savelogsflag=1&useparent=0&asyncdest=T2_CH_CERN&algoargs=4300&cachefilename=82cf9f68cc027c9f1f188661d4ea7344d5097950a67662ccb8ad810821f07dd8.tar.gz&numcores=1&generator=pythia&maxmemory=2000&publishdbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fphys03%2FDBSWriter&priority=10&jobsw=CMSSW_8_0_17&primarydataset=&inputdata=%2FQCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8%2FRunIISpring16reHLT80-PUSpring16RAWAODSIM_reHLT_80X_mcRun2_asymptotic_v14-v1%2FAODSIM&lfn=%2Fstore%2Fgroup%2Fphys_higgs%2FHiggsExo%2Fktos&dryrun=0&workflow=crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9&cacheurl=https%3A%2F%2Fcmsweb.cern.ch%2Fcrabcache&nonprodsw=0&oneEventMode=0&debugfilename=0b11e4ca8f27bb959ef5e88d95b7d1504d488445880e99dc3e5dcbec63c572c5.tar.gz&saveoutput=1&publication=1&jobarch=slc6_amd64_gcc530&totalunits=3000000&splitalgo=LumiBased&ignoreglobalblacklist=0&nonvaliddata=0&dbsurl=https%3A%2F%2Fcmsweb.cern.ch%2Fdbs%2Fprod%2Fglobal%2FDBSReader&publishgroupname=0&jobtype=Analysis&publishname2=QCD_20to30_NoIsoDiTau_NoMVA_FEB9&tfileoutfiles=RegionB_Tfile.root&edmoutfiles=RegionB_selection.root
+DEBUG 2017-03-14 23:24:28,132: 	 Result: {u'result': [{u'RequestName': u'170314_222427:ktos_crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9'}]}
+INFO 2017-03-14 23:24:28,139: 	 Success: Your task has been delivered to the CRAB3 server.
+INFO 2017-03-14 23:24:28,140: 	 Task name: 170314_222427:ktos_crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9
+INFO 2017-03-14 23:24:28,140: 	 Please use 'crab status' to check how the submission process proceeds.
+DEBUG 2017-03-14 23:24:28,140: 	 About to return
+INFO 2017-03-14 23:24:28,142: 	 Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiTau_NoMVA_FEB9/crab.log

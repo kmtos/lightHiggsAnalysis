@@ -52,20 +52,20 @@ echo "" >> $FILENAME
 crab submit crabConfig_QCD_80to120.py >> $FILENAME
 echo "" >> $FILENAME
 
-#echo "SIGNAL"
-#crab submit crabConfig_SignalH125a19.py >> $FILENAME
-#echo "" >> $FILENAME
-#crab submit crabConfig_SignalH125a5.py >> $FILENAME
-#echo "" >> $FILENAME
-#crab submit crabConfig_SignalH125a9.py >> $FILENAME
-#echo "" >> $FILENAME
-#crab submit crabConfig_SignalH750a9.py >> $FILENAME
-#echo "" >> $FILENAME
+echo "SIGNAL"
+crab submit crabConfig_SignalH125a19.py >> $FILENAME
+echo "" >> $FILENAME
+crab submit crabConfig_SignalH125a5.py >> $FILENAME
+echo "" >> $FILENAME
+crab submit crabConfig_SignalH125a9.py >> $FILENAME
+echo "" >> $FILENAME
+crab submit crabConfig_SignalH750a9.py >> $FILENAME
+echo "" >> $FILENAME
 
 echo "TTBAR"
 crab submit crabConfig_TTBar.py >> $FILENAME
 echo "" >> $FILENAME
 
-#echo "DATA"
-#crab submit crabConfig_TestRegions.py >> $FILENAME
+echo "DATA"
+crab submit crabConfig_TestRegions.py >> $FILENAME
 
