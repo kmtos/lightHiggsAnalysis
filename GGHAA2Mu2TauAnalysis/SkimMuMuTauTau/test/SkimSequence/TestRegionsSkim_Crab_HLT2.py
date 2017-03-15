@@ -239,8 +239,8 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
    				    Mu1Mu2=cms.InputTag('Mu1Mu2PtRankMuonID'),
-				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular
-                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular
+				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
+                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular, -1 for NoMassCut
 )
 
 process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
