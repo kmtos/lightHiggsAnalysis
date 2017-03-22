@@ -225,7 +225,7 @@ process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 dRCut=cms.double(.5),
                 Mu2PtCut=cms.double(15.0),
                 oppositeSign = cms.bool(True), # False for SameSignDiMu, True regular
-                passdR = cms.bool(True)   # False for SeparatedDiMu, True regular
+                passdR = cms.bool(False)   # False for SeparatedDiMu, True regular
 )
 
 process.Mu1Mu2PtRankMuonID=cms.EDFilter(
