@@ -240,7 +240,7 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
    				    Mu1Mu2=cms.InputTag('Mu1Mu2PtRankMuonID'),
 				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular
-                                    maxMass=cms.double(60)  # -1 for Massgt25, 25.0 regular
+                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular
 )
 
 process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
@@ -252,8 +252,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(1.0),  # -1 for NoIsoDiMu, 1.0 regular
-                                isoMin=cms.double(0.0),  # 1.0 for NoIsoDiMu, 0.0 regular
+                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, 1.0 regular
+                                isoMin=cms.double(1.0),  # 1.0 for NoIsoDiMu, 0.0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -425,7 +425,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
-    passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
+    passDiscriminator = cms.bool(True),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
