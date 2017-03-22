@@ -224,8 +224,8 @@ process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 muonTag=cms.InputTag('MuonIWant'),
                 dRCut=cms.double(.5),
                 Mu2PtCut=cms.double(15.0),
-                oppositeSign = cms.bool(True), # False for SameSignDiMu, True regular
-                passdR = cms.bool(False)   # False for SeparatedDiMu, True regular
+                oppositeSign = cms.bool(False), # False for SameSignDiMu, True regular
+                passdR = cms.bool(True)   # False for SeparatedDiMu, True regular
 )
 
 process.Mu1Mu2PtRankMuonID=cms.EDFilter(
@@ -234,7 +234,7 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
   muon2ID=cms.string('loose'), # tightNew is another option
-  oppositeSign = cms.int32(-1)    # 1 for SameSignDiMu, -1 for regular
+  oppositeSign = cms.int32(1)    # 1 for SameSignDiMu, -1 for regular
 )
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
