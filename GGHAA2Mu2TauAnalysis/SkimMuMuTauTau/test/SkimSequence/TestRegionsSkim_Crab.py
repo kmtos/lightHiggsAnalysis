@@ -76,7 +76,6 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 #process.load("RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi")
 process.load('Tools/CleanJets/cleanjets_cfi')
-
 #define a parameter set to be passed to all modules that utilize GenTauDecayID for signal taus
 AMuMuPSet = cms.PSet(momPDGID = cms.vint32(A_PDGID),
                                    chargedHadronPTMin = cms.double(0.0),
@@ -233,14 +232,14 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
-  muon2ID=cms.string('loose'), # tightNew is another option
-  oppositeSign = cms.int32(-1)    # 1 for SameSignDiMu, -1 for regular
+  muon2ID=cms.string('loose'),# tightNew is another option
+  oppositeSign = cms.int32(-1) # 1 for SameSignDiMu, -1 for regular
 )
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
    				    Mu1Mu2=cms.InputTag('Mu1Mu2PtRankMuonID'),
-				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular
-                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular
+				    minMass=cms.double(40),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
+                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular, -1 for NoMassCut
 )
 
 process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
@@ -252,8 +251,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, 1.0 regular
-                                isoMin=cms.double(1.0),  # 1.0 for NoIsoDiMu, 0.0 regular
+                                isoMax=cms.double(1.0),  # -1 for NoIsoDiMu, 1.0 regular
+                                isoMin=cms.double(0),  # 1.0 for NoIsoDiMu, 0.0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -264,8 +263,6 @@ process.PtEtaCut = cms.EDFilter('PTETACUT',
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
 )
-
-
 
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
@@ -282,8 +279,8 @@ process.Mu45Selector = cms.EDFilter(
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
-)                 
-               
+)
+
 process.Mu3=cms.EDFilter('VetoMuon',
   muonTag=cms.InputTag('MuonIWant'),
   vetoMuonTag=cms.InputTag('Mu1Mu2EtaCut'),
