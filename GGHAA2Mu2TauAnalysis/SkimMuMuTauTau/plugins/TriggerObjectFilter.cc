@@ -231,11 +231,11 @@ TriggerObjectFilter<T>::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
   const trigger::TriggerObjectCollection& TOC( trgEvent->getObjects() );
   //choose the right sub-filter depending on the HLT path name
   std::vector<std::string> filters;
-   //std::cout<< "Bad trigger diagonise? "<< theRightHLTTag_.label()<<std::endl;
+  //std::cout<< "Bad trigger diagonise? "<< theRightHLTTag_.label()<<std::endl;
   //for(unsigned int  i=0; i< hltConfig_.moduleLabels(theRightHLTTag_.label()).size();i++)
   //{
-   //std::cout<<"hltConfig_.moduleLabels="<<(hltConfig_.moduleLabels( theRightHLTTag_.label())[i]) << std::endl;
-  //}
+  // std::cout<<"hltConfig_.moduleLabels="<<(hltConfig_.moduleLabels( theRightHLTTag_.label())[i]) << std::endl;
+ // }
    try { filters = hltConfig_.moduleLabels( theRightHLTTag_.label() ); }
    catch (std::exception ex) { cout << "bad trigger\n"; }
    for(int i=0; i != trgEvent->sizeFilters(); ++i) {

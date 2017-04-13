@@ -104,6 +104,9 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 // ----------member data ---------------------------
   edm::EDGetTokenT<reco::PFTauRefVector> tauTag_;
   edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
+  edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu3ID_;
+  edm::EDGetTokenT<std::vector<reco::PFMET>> Met_;
+  edm::EDGetTokenT<std::vector<reco::PFJet>> Jet_;
  // edm::EDGetTokenT<reco::GenParticleCollection> genParticleTag_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonRefVector>>  jetMuonMapTag_;
   std::vector<double> muHadMassBins_;
@@ -118,6 +121,9 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
   TH1F *LowestPt_;
   TH1F *dR_;
   TH1F *dRTauHighestPtMuon_;
+  TH1F *MissingEnergy_;
+  TH1F *count_jets_;
+  TH1F *Mu3Pt_;
   std::string outFileName_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> tauHadIsoTag_;
   edm::EDGetTokenT<reco::PFCandidateCollection> particleFlow_;
@@ -142,6 +148,9 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 MuMuTauTauRecoAnalyzer::MuMuTauTauRecoAnalyzer(const edm::ParameterSet& iConfig):
   tauTag_(consumes<reco::PFTauRefVector>(iConfig.getParameter<edm::InputTag>("tauTag"))),
   Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
+  Mu3ID_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu3ID"))),
+  Met_(consumes<std::vector<reco::PFMET>>(iConfig.getParameter<edm::InputTag>("Met"))),
+  Jet_(consumes<std::vector<reco::PFJet>>(iConfig.getParameter<edm::InputTag>("Jet"))),
  // genParticleTag_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleTag"))),
   jetMuonMapTag_(consumes<edm::ValueMap<reco::MuonRefVector> >(iConfig.getParameter<edm::InputTag>("jetMuonMapTag"))),
   muHadMassBins_(iConfig.getParameter<std::vector<double> >("muHadMassBins")),
@@ -180,6 +189,15 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
  
   edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu1Mu2;
   iEvent.getByToken(Mu1Mu2_, pMu1Mu2);
+
+  edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu3ID;
+  iEvent.getByToken(Mu3ID_, pMu3ID);
+  
+  edm::Handle<std::vector<reco::PFMET>> pPFMet;
+  iEvent.getByToken(Met_,pPFMet);
+  
+  edm::Handle<std::vector<reco::PFJet>> pPFJet;
+  iEvent.getByToken(Jet_,pPFJet);
   
   //edm::Handle<reco::GenParticleCollection> pGenParticles;
   // iEvent.getByToken(genParticleTag_, pGenParticles);
@@ -198,6 +216,7 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   double dR=0;
   reco::Muon* HighestPtMu1Mu2;
   reco::Muon* LowestPtMu1Mu2;
+  Mu3Pt_->Fill((*pMu3ID)[0]->pt());
   invMass=((*pMu1Mu2)[0]->p4()+(*pMu1Mu2)[1]->p4()).M();
   invMass_->Fill(invMass);
   if((*pMu1Mu2)[0]->pt()> (*pMu1Mu2)[1]->pt()){
@@ -211,6 +230,7 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
   HighestPt_->Fill(HighestPtMu1Mu2->pt());
   LowestPt_->Fill(LowestPtMu1Mu2->pt());
+  
   dR=deltaR(*LowestPtMu1Mu2, *HighestPtMu1Mu2);
   dR_->Fill(dR);
   std::vector<reco::PFCandidate*> PFCandidatePtrs; 
@@ -222,6 +242,18 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       PtSum+=(*iPFCandidate).pt();
     else continue;
   }
+  for(typename std::vector<reco::PFMET>::const_iterator iPFMet=pPFMet->begin(); iPFMet!=pPFMet->end(); ++iPFMet){
+    MissingEnergy_->Fill(iPFMet->energy());
+  }
+  int count_jets=0;
+
+  for(typename std::vector<reco::PFJet>::const_iterator iPFJet=pPFJet->begin(); iPFJet!=pPFJet->end(); ++iPFJet){
+    if(iPFJet->pt()>30){
+      count_jets++;
+    }
+  }
+  std::cout<<"count_jets="<<count_jets<<std::endl;
+  count_jets_->Fill(count_jets);
  
   Iso=PtSum/(HighestPtMu1Mu2->pt());
 
@@ -321,6 +353,12 @@ MuMuTauTauRecoAnalyzer::reset(const bool doDelete)
   dR_=NULL;
   if(doDelete && (dRTauHighestPtMuon_!=NULL)) delete dRTauHighestPtMuon_;
   dRTauHighestPtMuon_=NULL;
+  if(doDelete && (MissingEnergy_!=NULL)) delete MissingEnergy_;
+  MissingEnergy_=NULL;
+  if(doDelete && (count_jets_!=NULL)) delete count_jets_;
+  count_jets_=NULL;
+  if(doDelete && (Mu3Pt_!=NULL)) delete Mu3Pt_;
+  Mu3Pt_=NULL;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -333,12 +371,15 @@ MuMuTauTauRecoAnalyzer::beginJob()
   dimuIso_=new TH1F("dimuIso",";H125a19 di-mu isolation",50,0.0,5.0);
   Iso2D_=new TH2F("Iso2D", "H750a9 Isolation of di-mu(X-aixs) VS di-tau", 50,0.0,5.0, 50,0.0,500.0);
   Iso2D_->SetXTitle("relative Isolation of di-mu");
-  Iso2D_->SetYTitle("Tau Isolation Energy??");
+  Iso2D_->SetYTitle("Tau Isolation Energy");
   invMass_=new TH1F("invMass", "H125a19 invMass di-mu(GeV)", 100, 0.0, 30.0);
   HighestPt_=new TH1F("HighestPt", "H125a19 HighestPt-Muon's Pt(GeV)", 100,0,500);
   LowestPt_=new TH1F("LowestPt","H125a19 LowestPt-Muon's Pt (GeV)", 100, 0, 400);
   dR_=new TH1F("dR(Mu1,Mu2)", "H125a19 dR(Mu1, Mu2)", 100, 0.0, 1.0);
   dRTauHighestPtMuon_=new TH1F("dR(Mu1, Tau)", "H125a19 dR(Mu1, Tau)", 100, 0.0, 5.0);
+  Mu3Pt_=new TH1F("Mu3Pt","Mu3Pt",100,0.0,100.0);
+  MissingEnergy_=new TH1F("MissingEnergy","MissingEnergy", 100,0.0,200.0);
+  count_jets_=new TH1F("count_jets","count_jets", 20.0, 0.0, 20.0);
 
 }
 
@@ -382,6 +423,18 @@ MuMuTauTauRecoAnalyzer::endJob()
   TCanvas dRTauHighestPtMuonCanvas("dRTauHighestPtMuonCanvas","", 600, 600);
   Common::draw1DHistograms(dRTauHighestPtMuonCanvas, dRTauHighestPtMuon_);
   dRTauHighestPtMuonCanvas.Write();
+  out_->cd();
+  TCanvas MissingEnergyCanvas("MissingEnergyCanvas","",600,600);
+  Common::draw1DHistograms(MissingEnergyCanvas, MissingEnergy_); 
+  MissingEnergyCanvas.Write();
+  out_->cd();
+  TCanvas count_jetsCanvas("count_jetsCanvas","",600,600);
+  Common::draw1DHistograms(count_jetsCanvas, count_jets_);
+  count_jetsCanvas.Write();
+  out_->cd();
+  TCanvas Mu3PtCanvas("Mu3PtCanvas","",600,600);
+  Common::draw1DHistograms(Mu3PtCanvas,Mu3Pt_);
+  Mu3PtCanvas.Write();
   out_->Close();
   std::cout<<inputFile_<<std::endl;
   std::cout<<"CountInA= "<<CountInA<<std::endl;

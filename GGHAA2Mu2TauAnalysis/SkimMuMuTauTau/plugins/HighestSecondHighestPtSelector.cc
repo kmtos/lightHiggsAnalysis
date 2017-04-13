@@ -63,7 +63,6 @@ class HighestSecondHighestPtSelector : public edm::EDFilter {
       // ----------member data ---------------------------
 edm::EDGetTokenT<reco::MuonRefVector> muonTag_; 
 edm::EDGetTokenT<reco::VertexCollection> vtxTag_;
-std::map<std::string, TH1D*> histos1D_;
 std::string muon1ID_;
 std::string muon2ID_;
 };
@@ -82,7 +81,6 @@ std::string muon2ID_;
 HighestSecondHighestPtSelector::HighestSecondHighestPtSelector(const edm::ParameterSet& iConfig):
   muonTag_(consumes<reco::MuonRefVector>(iConfig.getParameter<edm::InputTag>("muonTag"))),
   vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxTag"))),
-  histos1D_(),
   muon1ID_(iConfig.getParameter<std::string>("muon1ID")),
   muon2ID_(iConfig.getParameter<std::string>("muon2ID"))
 {
@@ -141,7 +139,7 @@ HighestSecondHighestPtSelector::filter(edm::Event& iEvent, const edm::EventSetup
      for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin();
          iMuon!=pMuons->end();++iMuon)
      {
-       if(((*iMuon)->pt()< (maxMuon->pt()))&&((*iMuon)->pt()>secondMax )&&((*iMuon)->pdgId()==(-1)*((maxMuon)->pdgId())))
+       if(((*iMuon)->pt()< (maxMuon->pt()))&&((*iMuon)->pt()>secondMax))
        {
          secondMax=(*iMuon)->pt();
          secondMaxMuon=(*iMuon);
@@ -196,7 +194,6 @@ HighestSecondHighestPtSelector::filter(edm::Event& iEvent, const edm::EventSetup
      {
        LargerThan0=1;  
        std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
-       histos1D_["Pt_SecondHighest"]->Fill(secondMaxMuon->pt());
        muonColl->push_back(maxMuon);
        muonColl->push_back(secondMaxMuon);
        iEvent.put(muonColl);
@@ -210,8 +207,6 @@ HighestSecondHighestPtSelector::filter(edm::Event& iEvent, const edm::EventSetup
 void 
 HighestSecondHighestPtSelector::beginJob()
 {
- edm::Service<TFileService> fileService;
-  histos1D_[ "Pt_SecondHighest" ]=fileService->make<TH1D>("Pt_SecondHighest","bla",100,0,500);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

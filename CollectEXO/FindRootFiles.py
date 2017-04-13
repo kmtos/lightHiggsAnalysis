@@ -5,7 +5,7 @@ import os
 import re
 def getFileList(inDir, inputName):
     tempfile = open('tmpFile.txt','w')
-    cmd_all='find ' + inDir + ' -maxdepth 2 -mindepth 2' 
+    cmd_all='find ' + inDir + ' -maxdepth 2 -mindepth 2 -name *IsoDiTau_NewMuIso*' 
     print cmd_all
     process_all=subprocess.Popen(cmd_all.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     tempfile.write(process_all.communicate()[0])
@@ -18,7 +18,7 @@ def getFileList(inDir, inputName):
     JobList=[]
     for Dir in outDirList:
         tempfile_Dir=open('tmpDirFile.txt','w')
-        cmd_last='find ' + Dir +' -mindepth 1 -maxdepth 1'
+        cmd_last='find ' + Dir +' -mindepth 2 -maxdepth 2'
         process_last=subprocess.Popen(cmd_last.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         tempfile_Dir.write(process_last.communicate()[0])
         tempfile_Dir.close()
@@ -26,7 +26,8 @@ def getFileList(inDir, inputName):
         JobList.append(last_line)
         os.remove('tmpDirFile.txt')
     for Job in JobList:
-        result=Job.split('/')[9]
+        print Job
+        result=Job.split('/')[8]#6 when inDir_ is /eos/cms/store/user/mshi
         fileName='./AllRootFiles/'+result+'.txt'
         getFileInOneFolderList(Job, fileName)
         
@@ -42,6 +43,7 @@ def getFileInOneFolderList(inDir, inputName):
 
 
 inputName_='testscript.txt'
-inDir_= '/eos/cms/store/group/phys_higgs/HiggsExo/ktos'
+inDir_='/eos/cms/store/group/phys_higgs/HiggsExo/mshi'
+#inDir_= '/eos/cms/store/user/mshi'
 getFileList(inDir_,inputName_)
 

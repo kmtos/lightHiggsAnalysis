@@ -71,12 +71,15 @@ class AMuTriggerAnalyzer : public edm::EDAnalyzer{
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> GenMatchedRecoMuonTag_;
       edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> MuPassTrigger_;
-  edm::EDGetTokenT<reco::GenParticleRefVector> selectedGenParticleTag_; 
-   std::vector<double> PtBins_;
-   std::vector<double> EtaBins_;
-   std::vector<double> dRBins_;
+      edm::EDGetTokenT<reco::GenParticleRefVector> selectedGenParticleTag_; 
+      std::vector<double> PtBins_;
+      std::vector<double> EtaBins_;
+      std::vector<double> dRBins_;
       std::map<std::string, TH1D*> histos1D_;
       std::map<std::string, TH2D*> histos2D_;
+      TEfficiency *eff;
+      TEfficiency *eff2;
+      edm::Service<TFileService> fileService;
 };
 
 //
@@ -158,22 +161,12 @@ AMuTriggerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
          continue;
      }
      histos1D_["denominator_pt"]->Fill(maxPtGenMatchedMuon->pt());
+     histos1D_["denominator_eta"]->Fill(maxPtGenMatchedMuon->eta());
      if(MuonsPassTrigger->size()!=0 )
      {
        histos1D_["numerator_dR"]->Fill(deltaRGen);
-     /*double maxTriggerMuonPt=0;
- *      reco::MuonRef maxPtTriggerMuon;
- *           for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMuonPassTrigger=MuonsPassTrigger->begin();iMuonPassTrigger!=MuonsPassTrigger->end(); ++iMuonPassTrigger)
- *                {
- *                       if((*iMuonPassTrigger)->pt()> maxTriggerMuonPt)
- *                              {
- *                                       maxTriggerMuonPt=(*iMuonPassTrigger)->pt();
- *                                                maxPtTriggerMuon=(*iMuonPassTrigger);
- *                                                       }
- *                                                              else
- *                                                                       continue;
- *                                                                            }*/
        histos1D_["numerator_pt"]->Fill(maxPtGenMatchedMuon->pt());
+       histos1D_["numerator_eta"]->Fill(maxPtGenMatchedMuon->eta());
      }
    }
 
@@ -195,7 +188,6 @@ void
 AMuTriggerAnalyzer::beginJob()
 {
   std::cout<<"in beginJob"<<std::endl;
-  edm::Service<TFileService> fileService;
 
   histos1D_["denominator_dR"]=fileService->make<TH1D>("denominator_dR", "dR ", dRBins_.size()-1, &dRBins_[0] );
   histos1D_["denominator_dR"]->SetXTitle("dR");
@@ -221,27 +213,31 @@ histos1D_["denominator_eta"]=fileService->make<TH1D>("denominator_eta", "eta of 
   histos1D_["numerator_eta"]->SetXTitle("eta");
   histos1D_["numerator_eta"]->Sumw2();
 
-  histos1D_["Efficiency_dR"]=fileService->make<TH1D>("Efficiency_dR","Efficiency_dR)", dRBins_.size()-1, &dRBins_[0]);
-
-  histos1D_["Efficiency_pt"]=fileService->make<TH1D>("Efficiency_pt","Efficiency of pass hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q(no HLT fire required) with change of pt of object pass hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q (H750a09)", PtBins_.size()-1, &PtBins_[0]);
+  histos1D_["Efficiency_dR"]=fileService->make<TH1D>("Efficiency_dR","Efficiency VS dR(Mu1, Mu2) with reco matched to gen level Muons", dRBins_.size()-1, &dRBins_[0]);
+  histos1D_["Efficiency_pt"]=fileService->make<TH1D>("Efficiency_pt","Efficiency VS pt of Mu1", PtBins_.size()-1, &PtBins_[0]);
   histos1D_["Efficiency_pt"]->SetXTitle("Pt");
   histos1D_["Efficiency_pt"]->SetYTitle("Efficiency (see title description)");
-
   histos1D_["Efficiency_eta"]=fileService->make<TH1D>("Efficiency_eta","Efficiency of pass hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q(no HLT fire required) with change of eta of object pass hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q (H750a09)", EtaBins_.size()-1, &EtaBins_[0]);
   histos1D_["Efficiency_eta"]->SetXTitle("Eta");
   histos1D_["Efficiency_eta"]->SetYTitle("Efficiency (see title description)");
-
+ 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 AMuTriggerAnalyzer::endJob() 
 {
- histos1D_["Efficiency_dR"]->Divide(histos1D_["numerator_dR"], histos1D_["denominator_dR"], 1, 1, "B");
+  histos1D_["Efficiency_dR"]->Divide(histos1D_["numerator_dR"], histos1D_["denominator_dR"], 1, 1, "B");
   histos1D_["Efficiency_pt"]->Divide(histos1D_["numerator_pt"], histos1D_["denominator_pt"], 1, 1, "B");
   histos1D_["Efficiency_eta"]->Divide(histos1D_["numerator_eta"], histos1D_["denominator_eta"], 1, 1, "B");
-
+  eff= fileService->make<TEfficiency>(*histos1D_["numerator_dR"], *histos1D_["denominator_dR"]);
+  eff->SetStatisticOption(TEfficiency::kFCP);
+  eff->Draw("AP");
+  eff2=fileService->make<TEfficiency>(*histos1D_["numerator_pt"], *histos1D_["denominator_pt"]);
+  eff2->SetStatisticOption(TEfficiency::kFCP);
+  eff2->Draw("AP");
 }
+
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
