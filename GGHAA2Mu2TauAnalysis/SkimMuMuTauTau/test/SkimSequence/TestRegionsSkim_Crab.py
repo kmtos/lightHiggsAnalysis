@@ -221,7 +221,7 @@ process.MuonIWant = cms.EDFilter('MuonRefSelector',
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
                 muonTag=cms.InputTag('MuonIWant'),
-                dRCut=cms.double(.5),
+                dRCut=cms.double(1.5),
                 Mu2PtCut=cms.double(15.0),
                 oppositeSign = cms.bool(True), # False for SameSignDiMu, True regular
                 passdR = cms.bool(True)   # False for SeparatedDiMu, True regular
@@ -238,7 +238,7 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
    				    Mu1Mu2=cms.InputTag('Mu1Mu2PtRankMuonID'),
-				    minMass=cms.double(40),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
+				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
                                     maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular, -1 for NoMassCut
 )
 
@@ -251,8 +251,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(1.0),  # -1 for NoIsoDiMu, 1.0 regular
-                                isoMin=cms.double(0),  # 1.0 for NoIsoDiMu, 0.0 regular
+                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, .2 regular
+                                isoMin=cms.double(.2),  # .2 for NoIsoDiMu, .0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)

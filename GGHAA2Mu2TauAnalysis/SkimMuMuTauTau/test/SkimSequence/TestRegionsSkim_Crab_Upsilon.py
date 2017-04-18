@@ -251,8 +251,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(.2),  # -1 for NoIsoDiMu, .2 regular
-                                isoMin=cms.double(.0),  # .2 for NoIsoDiMu, .0 regular
+                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, .2 regular
+                                isoMin=cms.double(.2),  # .2 for NoIsoDiMu, .0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -268,14 +268,14 @@ process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v6", "", "HLT")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
-    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
+    theRightHLTTag = cms.InputTag("HLT_Dimuon13_Upsilon_v6","","HLT"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
+    theRightHLTSubFilter1 = cms.InputTag("hltL1fL1sL1DoubleMu100dEtaMax1p8IorDoubleMu114L1Filtered0","","HLT"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
