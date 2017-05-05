@@ -444,11 +444,11 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.Mu45Selector
 )
 
-process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
-                                           process.PFTau*
-                                           process.pfBTagging*
+process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector#*
+#                                           process.PFTau*
+#                                           process.pfBTagging*
 					   #process.muHadTauSelector*
-                                           process.muHadIsoTauSelector
+#                                           process.muHadIsoTauSelector
 )
 
 

@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-#mylist=FileUtils.loadListFromFile('/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/CollectEXO/SignalH125a05.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/CollectEXO/SignalH125a05.txt')
 process = cms.Process("SKIM")
 
 #PDG IDs
@@ -54,14 +54,15 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                 SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
-#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*mylist))
-process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(102) )
+process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*mylist))
+#process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 
 process.source.inputCommands = cms.untracked.vstring("keep *")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 #for L1GtStableParametersRcd
+
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 #for HLT selection
@@ -232,8 +233,8 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
-  muon2ID=cms.string('loose'),# tightNew is another option
-  oppositeSign = cms.int32(-1) # 1 for SameSignDiMu, -1 for regular
+  muon2ID=cms.string('loose'),#tightNew is another option
+  oppositeSign = cms.int32(-1) # 1 for SameSign, -1 for regular
 )
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
@@ -251,8 +252,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(.2),  # -1 for NoIsoDiMu, .2 regular
-                                isoMin=cms.double(.0),  # .2 for NoIsoDiMu, .0 regular
+                                isoMax=cms.double(1.0),  # -1 for NoIsoDiMu, 1.0 regular
+                                isoMin=cms.double(0.0),  # 1.0 for NoIsoDiMu, 0.0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -263,19 +264,19 @@ process.PtEtaCut = cms.EDFilter('PTETACUT',
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
 )
-
+                                
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
-    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
+    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
+    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
@@ -391,7 +392,7 @@ process.muHadTauSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('hpsPFTauProducer', '', 'SKIM'),
     #tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '', 'SKIM'),
-    tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw', '', 'SKIM'),
+    tauHadIsoTag = cms.InputTag(' hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw', '', 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
       cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM')
     ),
@@ -411,7 +412,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('hpsPFTauProducer', '', 'SKIM'),
     #tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '', 'SKIM'),
-    tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw', '', 'SKIM'),
+    tauHadIsoTag = cms.InputTag(' hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw', '', 'SKIM'),
     tauDMTag = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
       #cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
@@ -422,7 +423,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
-    passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
+    passDiscriminator = cms.bool(True),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),

@@ -251,8 +251,8 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(-1),  # -1 for NoIsoDiMu, .2 regular
-                                isoMin=cms.double(.2),  # .2 for NoIsoDiMu, .0 regular
+                                isoMax=cms.double(.2),  # -1 for NoIsoDiMu, .2 regular
+                                isoMin=cms.double(.0),  # .2 for NoIsoDiMu, .0 regular
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
                                 minNumObjsToPassFilter=cms.uint32(2)
@@ -271,15 +271,48 @@ process.Mu45Selector = cms.EDFilter(
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
     triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v6", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v9", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v8", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v7", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v6", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v5", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v4", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v3", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v2", "", "HLT"),
+                            cms.InputTag("HLT_Dimuon13_Upsilon_v1", "", "HLT"),
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Dimuon13_Upsilon_v6","","HLT"),#TTBar background is v2
-    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL1fL1sL1DoubleMu100dEtaMax1p8IorDoubleMu114L1Filtered0","","HLT"),
+    theRightHLTTag = cms.InputTag("HLT_Dimuon13_Upsilon","","HLT"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL1fL1sL1DoubleMu100dEtaMax1p8IorDoubleMu114L1Filtered0","","HLT"),
+    theRightHLTSubFilter1 = cms.InputTag("hltDisplacedmumuFilterDimuon13Upsilon", "", "HLT"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
 )
+
+#process.load('HLTrigger/HLTfilters/hltHighLevel_cfi')
+#process.IsoMu24eta2p1Selector = process.hltHighLevel.clone()
+#process.IsoMu24eta2p1Selector.HLTPaths = cms.vstring('HLT_Dimuon13_Upsilon_v1',
+#                                                     'HLT_Dimuon13_Upsilon_v2',
+#                                                     'HLT_Dimuon13_Upsilon_v3',
+#                                                     'HLT_Dimuon13_Upsilon_v4',
+#                                                     'HLT_Dimuon13_Upsilon_v5',
+#                                                     'HLT_Dimuon13_Upsilon_v6',
+#                                                     'HLT_Dimuon13_Upsilon_v7',
+#                                                     'HLT_Dimuon13_Upsilon_v8',
+#                                                     'HLT_Dimuon13_Upsilon_v9',
+#                                                     'HLT_Dimuon13_Upsilon_v10',
+#                                                     'HLT_Dimuon13_Upsilon_v11',
+#	                                             'HLT_Dimuon13_Upsilon_v12',
+#	                                             'HLT_Dimuon13_Upsilon_v13',
+#                                                     'HLT_Dimuon13_Upsilon_v14',
+#                                                     'HLT_Dimuon13_Upsilon_v15',
+#                                                     'HLT_Dimuon13_Upsilon_v16',
+#                                                     'HLT_Dimuon13_Upsilon_v17',
+#                                                     'HLT_Dimuon13_Upsilon_v18',
+#                                                     'HLT_Dimuon13_Upsilon_v19',
+#                                                     'HLT_Dimuon13_Upsilon_v20')
+#
+#process.IsoMu24eta2p1Selector.throw = cms.bool(False)
 
 process.Mu3=cms.EDFilter('VetoMuon',
   muonTag=cms.InputTag('MuonIWant'),
@@ -422,7 +455,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
-    passDiscriminator = cms.bool(True),  # False for NoIsoDiTau, True regular
+    passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
@@ -441,7 +474,8 @@ process.MuMuSequenceSelector=cms.Sequence(
 	process.Mu1Mu2EtaCut*
         process.Isolate*
         process.PtEtaCut*
-        process.Mu45Selector
+        process.Mu45Selector#*
+#        process.IsoMu24eta2p1Selector # Aded for Correct trigger subfilter investigation
 )
 
 process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
