@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/test.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/DYHigh_raw.txt')
 process = cms.Process("SKIM")
 
 #PDG IDs
@@ -220,7 +220,8 @@ process.MuonIWant = cms.EDFilter('MuonRefSelector',
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
                 muonTag=cms.InputTag('MuonIWant'),
-                dRCut=cms.double(-1),
+                dRCut=cms.double(1.5),
+ 		passdR=cms.bool(True),
                 Mu2PtCut=cms.double(15.0),
                 oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
 )
@@ -241,11 +242,11 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(1.0),
+                                isoMax=cms.double(0.2),
                                 isoMin=cms.double(0.0),
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
-                                minNumObjsToPassFilter=cms.uint32(2)
+                                minNumObjsToPassFilter=cms.uint32(1)
 )
 process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				muonTag=cms.InputTag('Mu1Mu2EtaCut'),
@@ -255,13 +256,8 @@ process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				particleFlow=cms.InputTag('particleFlow'),
 				minNumObjsToPassFilter=cms.uint32(2)
 )
-process.AntiInvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
-   				    Mu1Mu2=cms.InputTag('Isolate'),
-				    minMass=cms.double(76.0),
-                                    maxMass=cms.double(106)
-)
 process.PtEtaCut = cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('AntiInvMassCut'),
+                                 muonTag=cms.InputTag('Isolate'),
                                  Eta=cms.double(2.1),
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
@@ -458,6 +454,11 @@ process.RECOAnalyze=cms.EDAnalyzer(
         tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits', '',
                                 'SKIM')
 )
+process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
+                                    Mu1Mu2=cms.InputTag('Mu1Mu2EtaCut'),
+                                    minMass=cms.double(0.0),
+                                    maxMass=cms.double(35.0)
+)
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
 #       process.TriggerAnalyzer0*
@@ -466,7 +467,6 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.Mu1Mu2PtRankMuonID*
         process.Mu1Mu2EtaCut*
         process.Isolate*
-        process.AntiInvMassCut*
         process.PtEtaCut*
         process.Mu45Selector
 )
@@ -474,7 +474,9 @@ process.MuMuSequenceSelector=cms.Sequence(
 process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
                                            process.PFTau*
                                            process.pfBTagging*
-					   process.muHadIsoTauSelector
+                                           process.muHadTauSelector*
+                                           process.muHadNonIsoTauSelector*
+					   process.MassCut
 )
 
 

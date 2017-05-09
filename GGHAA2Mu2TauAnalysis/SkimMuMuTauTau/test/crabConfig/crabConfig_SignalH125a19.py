@@ -7,7 +7,7 @@ config.General.transferOutputs = True
 config.General.transferLogs = True
 
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '../SkimSequence/FakeRateFromQCD_Signal.py'
+config.JobType.psetName = '../SkimSequence/Signal_Sequence.py'
 
 config.Data.inputDataset = '/SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-19_TuneCUETP8M1_13TeV_madgraph_pythia8/RunIISpring16DR80-premix_withHLT_80X_mcRun2_asymptotic_v14-v1/AODSIM'
 config.Data.inputDBS = 'global'
