@@ -13,7 +13,7 @@ config.Data.inputDataset = '/WJetsToLNu_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/R
 config.Data.inputDBS = 'global'
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 10
-config.Data.outLFNDirBase = '/store/group/phys_higgs/HiggsExo/mshi'
+config.Data.outLFNDirBase = '/store/user/mshi'
 config.Data.publication = True
 config.Data.outputDatasetTag = 'CRAB3_WJets_skim'
 

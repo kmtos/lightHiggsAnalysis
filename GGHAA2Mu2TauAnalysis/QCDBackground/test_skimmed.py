@@ -18,6 +18,7 @@ process.MuMuTauTauRecoAnalyzer=cms.EDAnalyzer(
         tauTag=cms.InputTag('muHadIsoTauSelector','','SKIM'),
         jetMuonMapTag=cms.InputTag('CleanJets','muonValMap','SKIM'),
         Mu1Mu2= cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
+        IsolatedMuon=cms.InputTag('Isolate','','SKIM'),
         Mu3ID=cms.InputTag('Mu3ID','','SKIM'),
         Jet=cms.InputTag('ak4PFJets','','RECO'), 
         Met=cms.InputTag('pfMet','','RECO'),
