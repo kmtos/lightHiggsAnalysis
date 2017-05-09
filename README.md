@@ -151,7 +151,7 @@ cmsRun RegionBSkim.py
 
 You will obtain a .root file that stores events after this selection sequence. In particular, this RegionBSkim.py gives you selection sequence of getting B region data defined as "isolated di-mu and non-isolated di-tau selection plus passing general selection sequence".
 
-###AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
+### AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
 
 Contains analyzers targeting for analyze di-muon behavior.
 
