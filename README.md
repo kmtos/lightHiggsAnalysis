@@ -73,19 +73,8 @@ Contains our major analysis code
 
 ###SkimSequence folder
 
-https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/ is where our selection sequence developed. If can skim officially generated MC background down to order 10^-6 while keep most of signal.    
+https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/ is where our selection sequence developed. It can skim officially generated MC background down to order 10^-6 while keep most of signal.    
 
-Recently we focus on using ABCD method to get estimation of QCD, TTBar, DrellYan backgrounds, and two non-correlated parameters defining these four regions are di-mu relative isolation, di-tau isolation. 
-
-Region A: di-mu relative isolation: 0~1.0, di-tau isolation: tau id using MVA "hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"
-
-Region B: di-mu relative isolation: 0~1.0, di-tau anti-isolation: anti tau id using MVA "hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"
-
-Region C: di-mu relative isolationL: >1.0, di-tau isolation: tau id using MVA defined above.
-
-Region D: di-mu relative isolation: >1.0, di-tau anti-isolation: anti tau id.
-
-To know what this MVA method is, check out this link https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuidePFTauID
 
 And pleas notice, all the variables can be defined by user. 
 
@@ -160,7 +149,7 @@ cd <path_to_the_following_folder>/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimS
 
 cmsRun RegionBSkim.py
 
-You will obtain a .root file named "RegionB_selection.root" that stores events after this selection sequence. In particular, this RegionBSkim.py gives you selection sequence of getting B region data defined as "isolated di-mu and non-isolated di-tau selection plus passing general selection sequence".
+You will obtain a .root file that stores events after this selection sequence. In particular, this RegionBSkim.py gives you selection sequence of getting B region data defined as "isolated di-mu and non-isolated di-tau selection plus passing general selection sequence".
 
 ###AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
 
@@ -195,5 +184,76 @@ You need to change https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/
 package has a separate readme https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/Tools/README.md It contains packages has more general functions support this analysis. 
 
 
+##6. Workflow
 
+a) In path_to_your_folder/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence, define your selection sequence
 
+b) In path_to_your_folder/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig, define corresponding crab submission configuration file, and submit job to crab server.
+
+c) cd path_to_your_folder/CMSSW_8_0_17/src/CollectEXO/ 
+
+mkdir AllRootFiles
+
+Use path_to_your_folder/CMSSW_8_0_17/src/CollectEXO/FindRootFiles.py to get collection of all .txt files that contains root file path of skimmed results.
+
+It will look like, in CollectEXO/AllRootFiles
+
+DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.txt
+
+DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.txt
+
+QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-120to170_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-15to20_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-170to300_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-20to30_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-300to470_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-30to50_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-470to600_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-50to80_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-600to800_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-800to1000_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+QCD_Pt-80to120_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8.txt
+
+SingleMuon.txt
+
+SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-19_TuneCUETP8M1_13TeV_madgraph_pythia8.txt
+
+SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-5_TuneCUETP8M1_13TeV_madgraph_pythia8.txt
+
+SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-750_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8.txt
+
+SUSYGluGluToHToAA_AToMuMu_AToTauTau_M-9_TuneCUETP8M1_13TeV_madgraph_pythia8.txt
+
+TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.txt
+
+For example, in TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8.txt,
+
+It contains,
+
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/TTBar_RegionBWithMassCut/170416_022149/0000/RegionB_selection_1.root
+
+root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/mshi/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/TTBar_RegionBWithMassCut/170416_022149/0000/RegionB_selection_10.root
+
+...
+
+170416_022149 is the crab submission job number.
+
+d) In /CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/QCDBackground, there is a Summary.sh
+
+./Summary.sh, you will submit analysis of each background/signal in lxplus. Since we want plot on same physics measurement, for example pt of highest pt muon, missing energy, and so on, we run similar code on different backgrounds/signals, I wrote a template named test_skimmed.py that be fed into Summary.sh, and copy this python file 10 times and change a bit according to which backgrounds we analyze. In the end of Summary.sh, it submit jobs with all modified versions of analysis template using 'bsub', and start to analyze all backgrounds and signals. Wait until you get .root files, use "bjobs" to check status.
+
+.root files will contains histograms. Modify test_skimmed.py to include new plots.
+
+e) In StandardPlotFormat I use several simple scripts to stack all backgrounds together and compare with signal. Notice this is a temporary solution. In /CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/Plotting/test as mentioned in above sections, it's a non-temporary solution that's under development. 
