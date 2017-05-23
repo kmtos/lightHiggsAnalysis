@@ -65,9 +65,9 @@ scram b -j16
 
 ***********************************************************************
 
-Folders are organized as following: 
+## Folders are organized as following: 
 
-##1. GGHAA2Mu2TauAnalysis 
+### GGHAA2Mu2TauAnalysis 
 
 Contains our major analysis code 
 
@@ -151,7 +151,7 @@ cmsRun RegionBSkim.py
 
 You will obtain a .root file that stores events after this selection sequence. In particular, this RegionBSkim.py gives you selection sequence of getting B region data defined as "isolated di-mu and non-isolated di-tau selection plus passing general selection sequence".
 
-###AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
+### AMuTriggerAnalyzer and MuMuTauTauRecoAnalyzer 
 
 Contains analyzers targeting for analyze di-muon behavior.
 
@@ -169,22 +169,22 @@ It is still under development. It aims to produce more maybe all plots that we a
 Specifically analyze MC QCD background
 
 
-##3. CollectEXO
+### CollectEXO
 
 It contains all the files of background and signal Monte Carlo after selection sequence. These MC results are stored on eos space of higgs Exotic group.
 
-##4.GetStatistics
+### GetStatistics
 
 Everytime you submit job to crab, it divide one single job to smaller jobs, and since selection sequence table is written in log files, this scirpt collects all these tables from your entire job area, and calculate the final statistics. 
 
 You need to change https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/GetStatistics/Files.txt to sepecify where your log files are store at. Currently it focus on getting selection table for QCD Monte Carlo. But it's flexible and you can study anything you are interested in.
 
-##5. Tools 
+### Tools 
 
 package has a separate readme https://github.com/MengyaoShi/lightHiggsAnalysis/blob/master/Tools/README.md It contains packages has more general functions support this analysis. 
 
 
-##6. Workflow
+## Workflow
 
 a) In path_to_your_folder/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence, define your selection sequence
 
