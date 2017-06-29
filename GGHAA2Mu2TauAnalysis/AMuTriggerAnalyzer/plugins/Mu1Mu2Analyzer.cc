@@ -42,6 +42,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 using namespace std;
 using namespace edm;
 using namespace reco;
@@ -77,6 +78,8 @@ class Mu1Mu2Analyzer : public edm::EDAnalyzer{
       std::vector<double> invMassBins_;
       bool MC_;
       edm::EDGetTokenT<std::vector<PileupSummaryInfo>> PUTag_;
+      float MC_weighting;
+      edm::EDGetTokenT<GenEventInfoProduct> generator_;
 };
 
 //
@@ -97,7 +100,8 @@ Mu1Mu2Analyzer::Mu1Mu2Analyzer(const edm::ParameterSet& iConfig):
   Mu2PtBins_(iConfig.getParameter<std::vector<double> >("Mu2PtBins")),
   invMassBins_(iConfig.getParameter<std::vector<double>>("invMassBins")),
   MC_(iConfig.getParameter<bool>("MC")),
-  PUTag_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("PUTag")))
+  PUTag_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("PUTag"))),
+  generator_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("Generator")))
 {
 }
 
@@ -124,72 +128,88 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
    edm::Handle<std::vector<PileupSummaryInfo> > pPU;
    if (MC_) iEvent.getByToken(PUTag_, pPU);
-
+   //if MC do Pileup reweighting
    double pu_weight = 1.0; 
    TFile *_filePU;
    _filePU= TFile::Open("/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/plugins/pileup_MC_80x_271036-276811_69200.root");
    TH1D *puweight = (TH1D*)_filePU->Get("puweight");
+   cout<<"pPU size"<<pPU->size()<<std::endl;
+   float num_PU_vertices = -1;
+   if (MC_ ) {
 
-  float num_PU_vertices = -1;
-  if (MC_ ) {
-    std::vector<PileupSummaryInfo>::const_iterator iPU = pPU->begin();
-    int BX = 0;
-    while ((iPU != pPU->end()) && (BX == 0)) {
-      BX = iPU->getBunchCrossing();
-      if (BX == 0) {
-        num_PU_vertices = iPU->getTrueNumInteractions();
-        BX = -1;
+      if(pPU.isValid()){
+         int count_pu=0;
+         for(vector<PileupSummaryInfo>::const_iterator cand=pPU->begin(); cand!=pPU->end();++cand){
+            //std::cout << " Pileup Information: bunchXing, nvtx: " << cand->getBunchCrossing() << " " << cand->getPU_NumInteractions() << std::endl;
+	    if (cand->getBunchCrossing() == 0)
+            { 
+               num_PU_vertices=cand->getTrueNumInteractions();
+               count_pu++;
+            }
+	    //num_PU_vertices=cand->getPU_NumInteractions(); in-time,out-of-time pileup
+	    //BX=cand->getBunchCrossing();
+         }
+         //cout<<"count"<<count_pu<<std::endl;
       }
-      ++iPU;
-    }
+      histos1D_["NumVertices"]->Fill(num_PU_vertices);
     
-    if (num_PU_vertices!=-1){ 
-      int binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
-      cout << " bin x= " << binx << " " << puweight->GetBinContent(binx) << endl;	
-      pu_weight=double(puweight->GetBinContent(binx));
-    }
-  }
+      if (num_PU_vertices!=-1){ 
+         int binx = puweight->GetXaxis()->FindBin(num_PU_vertices);
+         //cout << " bin x= " << binx << " " << puweight->GetBinContent(binx) << endl;	
+         pu_weight=double(puweight->GetBinContent(binx));
+      }
+      // if Mc, do NLO corrections
+      MC_weighting=0.;
+      float EventWeight = 1.0;
+      edm::Handle<GenEventInfoProduct> gen_ev_info;
+      iEvent.getByToken(generator_, gen_ev_info);
+      if(!gen_ev_info.isValid()) return;
+      EventWeight = gen_ev_info->weight();
+      float mc_weight = ( EventWeight > 0 ) ? 1 : -1;
+      MC_weighting=mc_weight;
+    
+   }
 
-  _filePU->Close();
-  delete(_filePU); 
-  std::vector<reco::Muon*> Mu1Mu2Ptrs;
-  double invMass=0;
-  reco::Muon* HighestPtMu1Mu2;
-  reco::Muon* LowestPtMu1Mu2;
-  invMass=((*pMu1Mu2)[0]->p4()+(*pMu1Mu2)[1]->p4()).M();
-  if((*pMu1Mu2)[0]->pt()> (*pMu1Mu2)[1]->pt()){
-    HighestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[0])));
-    LowestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[1])));
-    }
-  else
-    {
-    HighestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[1])));
-    LowestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[0])));
-    } 
-  double Mu2Pt=0;
-  double dR=0.0;
-  double etaOfMu2=0;
-  dR=deltaR(*LowestPtMu1Mu2, *HighestPtMu1Mu2);
-  Mu2Pt=LowestPtMu1Mu2->pt();
-  etaOfMu2=LowestPtMu1Mu2->eta();
-  histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
-  histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
-  histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
-  histos1D_["Mu2Pt"]->Fill(Mu2Pt);
-  histos1D_["dRMu1Mu2"]->Fill(dR);
-  histos1D_["dRMu1Mu2Wider"]->Fill(dR);
-  histos1D_["etaOfMu2"]->Fill(etaOfMu2);
-  for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMu1Mu2=pMu1Mu2->begin(); iMu1Mu2!=pMu1Mu2->end();++iMu1Mu2)
-  {
-     Mu1Mu2Ptrs.push_back(const_cast<reco::Muon*>(&(**iMu1Mu2)));
-  }
+   _filePU->Close();
+   delete(_filePU); 
+   std::vector<reco::Muon*> Mu1Mu2Ptrs;
+   double invMass=0;
+   reco::Muon* HighestPtMu1Mu2;
+   reco::Muon* LowestPtMu1Mu2;
+   invMass=((*pMu1Mu2)[0]->p4()+(*pMu1Mu2)[1]->p4()).M();
+   if((*pMu1Mu2)[0]->pt()> (*pMu1Mu2)[1]->pt()){
+      HighestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[0])));
+      LowestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[1])));
+   }
+   else
+   {
+      HighestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[1])));
+      LowestPtMu1Mu2=const_cast<reco::Muon*>(&(*((*pMu1Mu2)[0])));
+   } 
+   double Mu2Pt=0;
+   double dR=0.0;
+   double etaOfMu2=0;
+   dR=deltaR(*LowestPtMu1Mu2, *HighestPtMu1Mu2);
+   Mu2Pt=LowestPtMu1Mu2->pt();
+   etaOfMu2=LowestPtMu1Mu2->eta();
+   histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
+   histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
+   histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
+   histos1D_["Mu2Pt"]->Fill(Mu2Pt);
+   histos1D_["dRMu1Mu2"]->Fill(dR);
+   histos1D_["dRMu1Mu2Wider"]->Fill(dR);
+   histos1D_["etaOfMu2"]->Fill(etaOfMu2);
+   for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMu1Mu2=pMu1Mu2->begin(); iMu1Mu2!=pMu1Mu2->end();++iMu1Mu2)
+   {
+      Mu1Mu2Ptrs.push_back(const_cast<reco::Muon*>(&(**iMu1Mu2)));
+   }
    for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMu1Mu2=pMu1Mu2->begin();iMu1Mu2!=pMu1Mu2->end(); ++iMu1Mu2)
    {
     
-     histos1D_["pt_reco"]->Fill((*iMu1Mu2)->pt());
+      histos1D_["pt_reco"]->Fill((*iMu1Mu2)->pt());
    }
       
-   histos1D_["invMass"]->Fill(invMass,pu_weight);
+   histos1D_["invMass"]->Fill(invMass,pu_weight*MC_weighting);
 }
 
 
@@ -209,6 +229,7 @@ Mu1Mu2Analyzer::beginJob()
   histos1D_["dRMu1Mu2Wider"]=fileService->make<TH1D>("dRMu1Mu2Wider", "dRMu1Mu2Wider", 50, 0, 5.0);
   histos2D_["dRVsMu2Pt"]=fileService->make<TH2D>("dRVsMu2Pt", "dRVsMu2Pt", 50, 0, 5.0, 50, 0, 50.0);
   histos1D_["etaOfMu2"]=fileService->make<TH1D>("Eta of Mu2", "Eta of Mu2", 100, -5.0, 5.0);
+  histos1D_["NumVertices"]=fileService->make<TH1D>("NumVertices","NumVertices", 70, 0, 70);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
