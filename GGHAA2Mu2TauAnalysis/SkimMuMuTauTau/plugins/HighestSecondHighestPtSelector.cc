@@ -164,6 +164,11 @@ HighestSecondHighestPtSelector::filter(edm::Event& iEvent, const edm::EventSetup
             Mu1Identified = true;
          else Mu1Identified = false;
        }
+       else if(muon1ID_=="medium"){
+         if(muon::isMediumMuon(*maxMuon))
+           Mu1Identified = true;
+         else Mu1Identified= false;
+       }
        else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon1 ID.\n";
 
        if(muon2ID_ == "loose"){
@@ -176,6 +181,11 @@ HighestSecondHighestPtSelector::filter(edm::Event& iEvent, const edm::EventSetup
          if((pPV != NULL) && muon::isTightMuon(*secondMaxMuon, *pPV))
             Mu2Identified = true;
          else Mu2Identified = false;
+       }
+       else if(muon1ID_=="medium"){
+         if(muon::isMediumMuon(*maxMuon))
+           Mu2Identified = true;
+         else Mu2Identified= false;
        }
        else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon2 ID.\n";
 
