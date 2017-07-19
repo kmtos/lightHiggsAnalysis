@@ -104,6 +104,11 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 // ----------member data ---------------------------
   edm::EDGetTokenT<reco::PFTauRefVector> tauTag_;
   edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
+
+  edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> IsolatedMuon_;
+  edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu3ID_;
+  edm::EDGetTokenT<std::vector<reco::PFMET>> Met_;
+  edm::EDGetTokenT<std::vector<reco::PFJet>> Jet_;
  // edm::EDGetTokenT<reco::GenParticleCollection> genParticleTag_;
   edm::EDGetTokenT<edm::ValueMap<reco::MuonRefVector>>  jetMuonMapTag_;
   std::vector<double> muHadMassBins_;
@@ -111,21 +116,21 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
   TFile *out_;
   TH1F *muHadMass_;
   TH1F *tauHadIso_;
-  TH1F *dimuIso_;
+  TH1F *reliso_;
   TH2F *Iso2D_;
   TH1F *invMass_;
   TH1F *HighestPt_;
   TH1F *LowestPt_;
   TH1F *dR_;
   TH1F *dRTauHighestPtMuon_;
+  TH1F *MissingEnergy_;
+  TH1F *count_jets_;
+  TH1F *count_isomu_;
+  TH1F *Mu3Pt_;
   std::string outFileName_;
   edm::EDGetTokenT<reco::PFTauDiscriminator> tauHadIsoTag_;
   edm::EDGetTokenT<reco::PFCandidateCollection> particleFlow_;
   std::string inputFile_;
-  int CountInA=0;
-  int CountInB=0;
-  int CountInC=0;
-  int CountInD=0;
 };
 
 //
@@ -142,6 +147,10 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 MuMuTauTauRecoAnalyzer::MuMuTauTauRecoAnalyzer(const edm::ParameterSet& iConfig):
   tauTag_(consumes<reco::PFTauRefVector>(iConfig.getParameter<edm::InputTag>("tauTag"))),
   Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
+  IsolatedMuon_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("IsolatedMuon"))),
+  Mu3ID_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu3ID"))),
+  Met_(consumes<std::vector<reco::PFMET>>(iConfig.getParameter<edm::InputTag>("Met"))),
+  Jet_(consumes<std::vector<reco::PFJet>>(iConfig.getParameter<edm::InputTag>("Jet"))),
  // genParticleTag_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleTag"))),
   jetMuonMapTag_(consumes<edm::ValueMap<reco::MuonRefVector> >(iConfig.getParameter<edm::InputTag>("jetMuonMapTag"))),
   muHadMassBins_(iConfig.getParameter<std::vector<double> >("muHadMassBins")),
@@ -180,6 +189,18 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
  
   edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu1Mu2;
   iEvent.getByToken(Mu1Mu2_, pMu1Mu2);
+ 
+  edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pIsolatedMuon;
+  iEvent.getByToken(IsolatedMuon_, pIsolatedMuon);
+
+  edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu3ID;
+  iEvent.getByToken(Mu3ID_, pMu3ID);
+  
+  edm::Handle<std::vector<reco::PFMET>> pPFMet;
+  iEvent.getByToken(Met_,pPFMet);
+  
+  edm::Handle<std::vector<reco::PFJet>> pPFJet;
+  iEvent.getByToken(Jet_,pPFJet);
   
   //edm::Handle<reco::GenParticleCollection> pGenParticles;
   // iEvent.getByToken(genParticleTag_, pGenParticles);
@@ -198,6 +219,7 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   double dR=0;
   reco::Muon* HighestPtMu1Mu2;
   reco::Muon* LowestPtMu1Mu2;
+  Mu3Pt_->Fill((*pMu3ID)[0]->pt());
   invMass=((*pMu1Mu2)[0]->p4()+(*pMu1Mu2)[1]->p4()).M();
   invMass_->Fill(invMass);
   if((*pMu1Mu2)[0]->pt()> (*pMu1Mu2)[1]->pt()){
@@ -211,19 +233,32 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
   HighestPt_->Fill(HighestPtMu1Mu2->pt());
   LowestPt_->Fill(LowestPtMu1Mu2->pt());
+  
   dR=deltaR(*LowestPtMu1Mu2, *HighestPtMu1Mu2);
   dR_->Fill(dR);
   std::vector<reco::PFCandidate*> PFCandidatePtrs; 
-  double PtSum=0;
-  double Iso=0;
-  for(typename reco::PFCandidateCollection::const_iterator iPFCandidate = pPFCandidates->begin(); iPFCandidate != pPFCandidates->end(); ++iPFCandidate){
-    PFCandidatePtrs.push_back(const_cast<reco::PFCandidate*> (&(*iPFCandidate)));
-    if(deltaR(*HighestPtMu1Mu2, *iPFCandidate )<0.4&&(deltaR(*HighestPtMu1Mu2, *iPFCandidate)>0.0001&&((*HighestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((*HighestPtMu1Mu2).pt())>0.0001)&&(deltaR(*LowestPtMu1Mu2, *iPFCandidate)>0.0001&&((*LowestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((*LowestPtMu1Mu2).pt())>0.0001))
-      PtSum+=(*iPFCandidate).pt();
-    else continue;
+  double reliso=0;
+  for (reco::MuonRefVector::const_iterator iMuon = pIsolatedMuon->begin(); iMuon != pIsolatedMuon->end(); ++iMuon) {
+    reco::MuonPFIsolation iso = (*iMuon)->pfIsolationR04();
+    reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/(*iMuon)->pt();
+    reliso_->Fill(reliso);
   }
+  double count_isomu=pIsolatedMuon->size();
+  count_isomu_->Fill(count_isomu);
+
+  for(typename std::vector<reco::PFMET>::const_iterator iPFMet=pPFMet->begin(); iPFMet!=pPFMet->end(); ++iPFMet){
+    MissingEnergy_->Fill(iPFMet->energy());
+  }
+  int count_jets=0;
+
+  for(typename std::vector<reco::PFJet>::const_iterator iPFJet=pPFJet->begin(); iPFJet!=pPFJet->end(); ++iPFJet){
+    if(iPFJet->pt()>30){
+      count_jets++;
+    }
+  }
+  std::cout<<"count_jets="<<count_jets<<std::endl;
+  count_jets_->Fill(count_jets);
  
-  Iso=PtSum/(HighestPtMu1Mu2->pt());
 
 /*  std::vector<reco::GenParticle*> genObjPtrs; 
    for(typename std::vector<reco::GenParticle>::const_iterator iGenObj=pGenParticles->begin(); iGenObj!=pGenParticles->end(); ++iGenObj)
@@ -258,22 +293,13 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    muHadMass_->Fill(muHadMassForPlotting, PUWeight*tauHadPTWeight*HiggsPTWeight);
    tauHadIso_->Fill((*pTauHadIso)[*iTau], PUWeight);
    //std::cout<<"Iso=="<<Iso<<"(*pTauHadIso)[*iTau]=="<<((*pTauHadIso)[*iTau])<<std::endl;
-   dimuIso_->Fill(Iso);
    double ditauiso=(*pTauHadIso)[*iTau];
-   Iso2D_->Fill(Iso, ditauiso);
+   Iso2D_->Fill(reliso, ditauiso);
    //ABCD method region defined as:
    //region A Iso<0.5, di-tau iso<10GeV,
    //region B Iso>1.0, di-tau iso<10GeV,
    //region C Iso<0.5, di-tau iso>30GeV,
    //region D Iso>1.0, di-tau iso>30GeV.
-   if(Iso<0.5&& ditauiso<10)
-      CountInA++;
-   else if(Iso>1.0&&ditauiso<10)
-      CountInB++;
-   else if(Iso<0.5&& ditauiso>30)
-      CountInC++;
-   else if(Iso>1.0&& ditauiso>30)
-      CountInD++;
    double dRTauHighestPtMuon=0;
    dRTauHighestPtMuon=deltaR(**iTau, *HighestPtMu1Mu2);
    dRTauHighestPtMuon_->Fill(dRTauHighestPtMuon);
@@ -307,8 +333,8 @@ MuMuTauTauRecoAnalyzer::reset(const bool doDelete)
   muHadMass_=NULL;
   if(doDelete && (tauHadIso_!=NULL)) delete tauHadIso_;
   tauHadIso_=NULL;
-  if(doDelete && (dimuIso_!=NULL)) delete dimuIso_;
-  dimuIso_=NULL;
+  if(doDelete && (reliso_!=NULL)) delete reliso_;
+  reliso_=NULL;
   if(doDelete && (Iso2D_!=NULL)) delete Iso2D_;
   Iso2D_=NULL;
   if(doDelete && (invMass_!=NULL)) delete invMass_;
@@ -321,6 +347,14 @@ MuMuTauTauRecoAnalyzer::reset(const bool doDelete)
   dR_=NULL;
   if(doDelete && (dRTauHighestPtMuon_!=NULL)) delete dRTauHighestPtMuon_;
   dRTauHighestPtMuon_=NULL;
+  if(doDelete && (MissingEnergy_!=NULL)) delete MissingEnergy_;
+  MissingEnergy_=NULL;
+  if(doDelete && (count_jets_!=NULL)) delete count_jets_;
+  count_jets_=NULL;
+  if(doDelete && (count_isomu_!=NULL)) delete count_isomu_;
+  count_isomu_=NULL;
+  if(doDelete && (Mu3Pt_!=NULL)) delete Mu3Pt_;
+  Mu3Pt_=NULL;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -330,15 +364,19 @@ MuMuTauTauRecoAnalyzer::beginJob()
   out_= new TFile(outFileName_.c_str(),"RECREATE");
   muHadMass_=new TH1F("muHadMass", ";H125a19 m_{#mu+X} (GeV);", muHadMassBins_.size()-1, &muHadMassBins_[0]);  
   tauHadIso_=new TH1F("tauHadIso", ";H125a19 Isolation energy (GeV);", 10, 0.0, 10.0);
-  dimuIso_=new TH1F("dimuIso",";H125a19 di-mu isolation",50,0.0,5.0);
+  reliso_=new TH1F("reliso",";H125a19 di-mu isolation",50,0.0,5.0);
   Iso2D_=new TH2F("Iso2D", "H750a9 Isolation of di-mu(X-aixs) VS di-tau", 50,0.0,5.0, 50,0.0,500.0);
   Iso2D_->SetXTitle("relative Isolation of di-mu");
-  Iso2D_->SetYTitle("Tau Isolation Energy??");
+  Iso2D_->SetYTitle("Tau Isolation Energy");
   invMass_=new TH1F("invMass", "H125a19 invMass di-mu(GeV)", 100, 0.0, 30.0);
   HighestPt_=new TH1F("HighestPt", "H125a19 HighestPt-Muon's Pt(GeV)", 100,0,500);
   LowestPt_=new TH1F("LowestPt","H125a19 LowestPt-Muon's Pt (GeV)", 100, 0, 400);
   dR_=new TH1F("dR(Mu1,Mu2)", "H125a19 dR(Mu1, Mu2)", 100, 0.0, 1.0);
   dRTauHighestPtMuon_=new TH1F("dR(Mu1, Tau)", "H125a19 dR(Mu1, Tau)", 100, 0.0, 5.0);
+  Mu3Pt_=new TH1F("Mu3Pt","Mu3Pt",100,0.0,100.0);
+  MissingEnergy_=new TH1F("MissingEnergy","MissingEnergy", 100,0.0,200.0);
+  count_jets_=new TH1F("count_jets","count_jets", 20.0, 0.0, 20.0);
+  count_isomu_=new TH1F("count_isomu","count_isomu", 10,0.0,10.0);
 
 }
 
@@ -356,9 +394,9 @@ MuMuTauTauRecoAnalyzer::endJob()
   Common::draw1DHistograms(tauHadIsoCanvas, tauHadIso_);
   tauHadIsoCanvas.Write();
   out_->cd();
-  TCanvas dimuIsoCanvas("dimuIsoCanvas","",600,600);
-  Common::draw1DHistograms(dimuIsoCanvas,dimuIso_);
-  dimuIsoCanvas.Write();
+  TCanvas relisoCanvas("relisoCanvas","",600,600);
+  Common::draw1DHistograms(relisoCanvas,reliso_);
+  relisoCanvas.Write();
   out_->cd();
   TCanvas Iso2DCanvas("iso2DCanvas","",600,600);
   Common::draw2DHistograms(Iso2DCanvas, Iso2D_);
@@ -382,12 +420,24 @@ MuMuTauTauRecoAnalyzer::endJob()
   TCanvas dRTauHighestPtMuonCanvas("dRTauHighestPtMuonCanvas","", 600, 600);
   Common::draw1DHistograms(dRTauHighestPtMuonCanvas, dRTauHighestPtMuon_);
   dRTauHighestPtMuonCanvas.Write();
+  out_->cd();
+  TCanvas MissingEnergyCanvas("MissingEnergyCanvas","",600,600);
+  Common::draw1DHistograms(MissingEnergyCanvas, MissingEnergy_); 
+  MissingEnergyCanvas.Write();
+  out_->cd();
+  TCanvas count_jetsCanvas("count_jetsCanvas","",600,600);
+  Common::draw1DHistograms(count_jetsCanvas, count_jets_);
+  count_jetsCanvas.Write();
+  out_->cd();
+  TCanvas count_isomuCanvas("count_isomuCanvas","",600,600);
+  Common::draw1DHistograms(count_isomuCanvas, count_isomu_);
+  count_isomuCanvas.Write();
+  out_->cd();
+  TCanvas Mu3PtCanvas("Mu3PtCanvas","",600,600);
+  Common::draw1DHistograms(Mu3PtCanvas,Mu3Pt_);
+  Mu3PtCanvas.Write();
   out_->Close();
   std::cout<<inputFile_<<std::endl;
-  std::cout<<"CountInA= "<<CountInA<<std::endl;
-  std::cout<<"CountInB= "<<CountInB<<std::endl;
-  std::cout<<"CountInC= "<<CountInC<<std::endl;
-  std::cout<<"CountInD= "<<CountInD<<std::endl; 
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

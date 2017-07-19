@@ -145,10 +145,7 @@ bool CustomJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   //get jet-muon map
   edm::Handle<edm::ValueMap<reco::MuonRefVector> > pMuonJetMap;
   iEvent.getByToken(jetMuonMapTag_, pMuonJetMap);
-
   //get AK5 PF L1FastL2L3 jet correction service
-  const JetCorrector* corrector = JetCorrector::getJetCorrector("ak5PFL1FastL2L3", iSetup);
-
   //sort the overlap candidates in ascending order of pT
   std::vector<reco::Candidate*> overlapCandPtrs;
   for (unsigned int iOverlapCand = 0; iOverlapCand < pOverlapCands->size(); 
@@ -157,13 +154,13 @@ bool CustomJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 			      (pOverlapCands->refAt(iOverlapCand).get()));
   }
   Common::sortByPT(overlapCandPtrs);
-
+  std::cout<<"overlap"<<std::endl;
   //sort selected taus by descending order in mu+had mass
   std::vector<reco::PFTauRef> muHadMassSortedTaus;
   for (reco::PFTauRefVector::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); 
        ++iTau) { muHadMassSortedTaus.push_back(*iTau); }
   Common::sortByMass(pMuonJetMap, muHadMassSortedTaus);
-
+  std::cout<<"sort taus"<<std::endl;
   /*fill collection of new corrected jets
     - excluding the highest pT overlap candidate
     - excluding the highest mu+had mass tau
@@ -173,8 +170,6 @@ bool CustomJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (reco::PFJetCollection::const_iterator iJet = pOldJets->begin(); iJet != pOldJets->end(); 
        ++iJet) {
     reco::PFJet correctedJet = *iJet;
-    double JEC = corrector->correction(*iJet, iEvent, iSetup);
-    correctedJet.scaleEnergy(JEC);
     if ((reco::deltaR(*overlapCandPtrs[overlapCandPtrs.size() - 1], correctedJet) >= dR_) && 
 	(reco::deltaR(**muHadMassSortedTaus.begin(), correctedJet) >= dR_) && 
 	(correctedJet.pt() > pTMin_) && (fabs(correctedJet.eta()) < absEtaMax_)) {
@@ -183,7 +178,7 @@ bool CustomJetSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   iEvent.put(jetColl);
-
+  std::cout<<"After loop over jet"<<std::endl;
   //if not enough jets passing cuts were found in this event, stop processing
   return ((nPassingJets >= minNumObjsToPassFilter_) && 
 	  ((maxNumObjsToPassFilter_ == -1) || ((int)nPassingJets <= maxNumObjsToPassFilter_)));

@@ -239,6 +239,7 @@ TriggerObjectFilter<T>::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<std::string> filters;
   //std::cout<< "Bad trigger diagonise? "<< theRightHLTTag_.label()<<std::endl;
   //for(unsigned int  i=0; i< hltConfig_.moduleLabels(theRightHLTTag_.label()).size();i++)
+<<<<<<< HEAD
     //std::cout<< "theRightHLTTag_=" << theRightHLTTag_.label() << "\tHLTHLTHLT: hltConfig_.moduleLabels="<<(hltConfig_.moduleLabels( theRightHLTTag_.label())[i]) << std::endl;
 
    try 
@@ -249,6 +250,12 @@ TriggerObjectFilter<T>::filter( edm::Event& iEvent, const edm::EventSetup& iSetu
      //  std::cout << "\t\t" << *i << std::endl;
    }
 
+=======
+  //{
+  // std::cout<<"hltConfig_.moduleLabels="<<(hltConfig_.moduleLabels( theRightHLTTag_.label())[i]) << std::endl;
+ // }
+   try { filters = hltConfig_.moduleLabels( theRightHLTTag_.label() ); }
+>>>>>>> upstream/master
    catch (std::exception ex) { cout << "bad trigger\n"; }
    //std::cout << "\n\ntrgEvent->filterTag(i):" << std::endl;
    for(int i=0; i != trgEvent->sizeFilters(); ++i) 

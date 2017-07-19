@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/test.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/SignalH125a05.txt')
 process = cms.Process("SKIM")
 
 #PDG IDs
@@ -115,7 +115,6 @@ skimEventContent = cms.PSet(
     "drop *_ak4CaloJets*_*_*",
     "drop *_ak4TrackJets*_*_*",
     "drop *_*jetCentral*_*_*",
-    "drop *_fixedGridRho*_*_*",
     "drop *_hfEMClusters_*_*",
     "drop *_eid*_*_*",
     "drop *_muonMETValueMapProducer_muCorrData_*",
@@ -130,7 +129,6 @@ skimEventContent = cms.PSet(
     "drop *_hfRecoEcalCandidate_*_*",
     "drop *_generalV0Candidates_*_*",
     "drop *_selectDigi_*_*",
-    "drop *_*BJetTags*_*_RECO",
     "drop *_castorreco_*_*",
     "drop *_reduced*RecHits*_*_*",
     "drop *_PhotonIDProd_*_*",
@@ -217,15 +215,17 @@ process.MuonIWant = cms.EDFilter('MuonRefSelector',
                                  cut = cms.string('pt > 0.0'),
                                  filter = cms.bool(True)
 )
-process.HighestPtAndMuonOppositeSignDRSelector=cms.EDFilter('HighestPtAndMuonOppositeSignDRSelector',
-                                               muonTag=cms.InputTag('MuonIWant'),
-					       dRCut=cms.double(1.5),
-                                               Mu2PtCut=cms.double(15.0)
+process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
+                'HighestPtAndMuonSignDRSelector',
+                muonTag=cms.InputTag('MuonIWant'),
+                dRCut=cms.double(1.5),
+                Mu2PtCut=cms.double(15.0),
+		passdR=cms.bool(True),
+                oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
 )
-
 process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   'HighestSecondHighestPtSelector',
-  muonTag=cms.InputTag('HighestPtAndMuonOppositeSignDRSelector'),
+  muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muon1ID=cms.string('tightNew'),
   muon2ID=cms.string('loose')#tightNew is another option
@@ -240,7 +240,7 @@ process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
 )
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('Mu1Mu2EtaCut'),
-                                isoMax=cms.double(1.0),
+                                isoMax=cms.double(0.2),
                                 isoMin=cms.double(0.0),
                                 baseMuonTag=cms.InputTag('muons'),
                                 particleFlow=cms.InputTag('particleFlow'),
@@ -254,13 +254,8 @@ process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				particleFlow=cms.InputTag('particleFlow'),
 				minNumObjsToPassFilter=cms.uint32(2)
 )
-process.AntiInvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
-   				    Mu1Mu2=cms.InputTag('Isolate'),
-				    minMass=cms.double(25.0),
-                                    maxMass=cms.double(-1)
-)
 process.PtEtaCut = cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('AntiInvMassCut'),
+                                 muonTag=cms.InputTag('Isolate'),
                                  Eta=cms.double(2.1),
                                  Pt=cms.double(45.0),
                                  minNumObjsToPassFilter=cms.uint32(1)
@@ -270,14 +265,18 @@ process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
+    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT"),#TTBar background is v2
+<<<<<<< HEAD:GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/RegionBSkim_Crab.py
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
+=======
     #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
+>>>>>>> upstream/master:GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/Signal_Sequence.py
+    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
@@ -408,7 +407,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
     cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
-    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
+    cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
@@ -430,7 +429,7 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     tauHadIsoTag = cms.InputTag('hpsPFTauDiscriminationByCombinedIsolationDeltaBetaCorrRaw3Hits', '',
                                 'SKIM'),
     tauDiscriminatorTags = cms.VInputTag(
-    cms.InputTag('hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT', '', 'SKIM')
+    cms.InputTag('hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLTraw', '', 'SKIM')
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
@@ -444,15 +443,20 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     minNumObjsToPassFilter = cms.uint32(1),
     outFileName=cms.string('muHadNoIsoTauSelector.root')
 )
+process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
+                                    Mu1Mu2=cms.InputTag('Mu1Mu2EtaCut'),
+                                    minMass=cms.double(0.0),
+                                    maxMass=cms.double(35.0)
+)
+
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
 #       process.TriggerAnalyzer0*
 	process.MuonIWant*
-        process.HighestPtAndMuonOppositeSignDRSelector*
+        process.HighestPtAndMuonSignDRSelector*
         process.Mu1Mu2PtRankMuonID*
         process.Mu1Mu2EtaCut*
         process.Isolate*
-        process.AntiInvMassCut*
         process.PtEtaCut*
         process.Mu45Selector
 )
@@ -461,7 +465,8 @@ process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
                                            process.PFTau*
                                            process.pfBTagging*
 					   process.muHadTauSelector*
-                                           process.muHadNonIsoTauSelector
+                                           process.muHadNonIsoTauSelector*
+					   process.MassCut
 )
 
 

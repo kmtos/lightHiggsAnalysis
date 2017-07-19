@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/CopiedFileName.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/AllRootFiles/CopiedFileName.txt')
 process = cms.Process("testOutput")
 
 
@@ -11,13 +11,17 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1000)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                 SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*mylist))
 process.MuMuTauTauRecoAnalyzer=cms.EDAnalyzer(
         'MuMuTauTauRecoAnalyzer',
-        tauTag=cms.InputTag('muHadTauSelector','','SKIM'),
+        tauTag=cms.InputTag('muHadIsoTauSelector','','SKIM'),
         jetMuonMapTag=cms.InputTag('CleanJets','muonValMap','SKIM'),
         Mu1Mu2= cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
+        IsolatedMuon=cms.InputTag('Isolate','','SKIM'),
+        Mu3ID=cms.InputTag('Mu3ID','','SKIM'),
+        Jet=cms.InputTag('ak4PFJets','','RECO'), 
+        Met=cms.InputTag('pfMet','','RECO'),
         #genParticleTag=cms.InputTag('genParticles'),
         muHadMassBins=cms.vdouble(1,2,3,4,12),
         FourBInvMassBins=cms.vdouble(0.0, 200.0,400.0,600.0, 800.0, 1000.0),

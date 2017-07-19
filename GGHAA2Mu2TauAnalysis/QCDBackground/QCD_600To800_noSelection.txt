@@ -1,5 +1,0 @@
-QCD_600To800_noSelection
-CountInA= 1
-CountInB= 13
-CountInC= 109
-CountInD= 378
