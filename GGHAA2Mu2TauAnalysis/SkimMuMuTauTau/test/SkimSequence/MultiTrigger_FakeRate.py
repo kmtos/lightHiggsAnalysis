@@ -498,7 +498,7 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.TriggerSelector
 )
 
-process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector#*
+process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
                                            process.PFTau*
                                            process.pfBTagging*
 					   process.muHadTauSelector*
