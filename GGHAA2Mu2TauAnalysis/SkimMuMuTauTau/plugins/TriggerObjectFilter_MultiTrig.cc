@@ -163,14 +163,17 @@ TriggerObjectFilter_MultiTrig<T>::beginJob()
   histos1D_["etaDistri_NoTriggerNoMatch"]=fileService->make<TH1D>("etaDistri_NoTriggerNoMatch","eta distribution of all reco muon without trigger fired or trigger-reco match H750a09",60,-3.,3.);
   //histos1D_[ "TriggerObjectInvMass_ifMatch" ]=fileService->make<TH1D>("TriggerObjectInvMass_ifMatch","Invariant Mass of the P4 of the Trigger Objects if Matched to RECO object",600,0,120);
   //histos1D_[ "TriggerObjectInvMass_zoomed" ]=fileService->make<TH1D>("TriggerObjectInvMass_zoomed","Invariant Mass of the P4 of the Trigger Objects", 100, 7, 12);
-  histos1D_["etaDistri_NoTriggerYesMatch"]=fileService->make<TH1D>("etaDistri_NoTriggerYesMatch","eta distribution of reco muon with trigger-reco match, no HLT fired",60,-3.,3.);
-  histos1D_["Efficiency_YesTriggerYesMatch"]=fileService->make<TH1D>("Efficiency_YesTriggerYesMatch","eta distribution of trigger+trigger matching efficiency",60,-3.,3.);
+  histos1D_["etaRecoMatch"]=fileService->make<TH1D>("etaRecoMatch","eta distribution of reco muon with trigger-reco match, no HLT fired",60,-3.,3.);
+  histos1D_["ptRecoMatch"]=fileService->make<TH1D>("ptRecoMatch","eta distribution of trigger+trigger matching efficiency",60,-3.,3.);
 
   histos1D_["Efficiency_YesTriggerNoMatch"]=fileService->make<TH1D>("Efficiency_YesTriggerNoMatch","eta distribution of highest pt muon trigger efficiency(with bot denominator and numerator trigger-reco match)",60,-3.,3.);
 
   histos1D_["EventSize"]=fileService->make<TH1D>("EventSize","#of particles per event pass",10,0,10);
   histos1D_["nMatches"]=fileService->make<TH1D>("nMatches","# of Matches",10,0,10);
   histos2D_["ptTrigCand1"] =fileService->make< TH2D >("ptTrigCand1","Object vs. candidate_higher_p_{T} (GeV)",150, 0., 150., 150, 0., 150.);
+
+
+
   histos2D_[ "ptTrigCand1" ]->SetXTitle( "candidate p_{T} (GeV)" );
   histos2D_[ "ptTrigCand1" ]->SetYTitle( "object p_{T} (GeV)" );
   histos2D_["TrigSizevsMu1Mu2Size"] =fileService->make< TH2D >("TrigSizevsMu1Mu2Size","Trigger Size vs. Mu1Mu2 Size", 5, -.5, 4.5, 5, -.5, 4.5);
@@ -332,6 +335,9 @@ TriggerObjectFilter_MultiTrig<T>::filter( edm::Event& iEvent, const edm::EventSe
             //diMuP4_ifMatch += (*iRecoObj)->p4() ;
             recoObjColl->push_back(*iRecoObj);
             histos2D_[ "ptTrigCand1"]->Fill((*iRecoObj)->pt(), TO1.pt());
+            histos1D_["etaRecoMatch"]->Fill((*iRecoObj)->eta() );
+            histos1D_["ptRecoMatch"]->Fill((*iRecoObj)->pt() );
+       
             passingRecoObjRefKeys1.push_back(iRecoObj->key());
           }//if
         }//for iRecoObj
@@ -363,8 +369,8 @@ TriggerObjectFilter_MultiTrig<T>::filter( edm::Event& iEvent, const edm::EventSe
 template<class T>
 void 
 TriggerObjectFilter_MultiTrig<T>::endJob() {
-//   histos1D_["Efficiency_YesTriggerNoMatch"]->Divide(  histos1D_[ "etaDistri_YesTriggerYesMatch" ],  histos1D_[ "etaDistri_NoTriggerYesMatch" ]);
-//   histos1D_["Efficiency_YesTriggerYesMatch"]->Divide(  histos1D_[ "etaDistri_YesTriggerYesMatch" ],  histos1D_[ "etaDistri_NoTriggerNoMatch" ]);
+//   histos1D_["Efficiency_YesTriggerNoMatch"]->Divide(  histos1D_[ "etaDistri_YesTriggerYesMatch" ],  histos1D_[ "etaRecoMatch" ]);
+//   histos1D_["ptRecoMatch"]->Divide(  histos1D_[ "etaDistri_YesTriggerYesMatch" ],  histos1D_[ "etaDistri_NoTriggerNoMatch" ]);
 }
 
 

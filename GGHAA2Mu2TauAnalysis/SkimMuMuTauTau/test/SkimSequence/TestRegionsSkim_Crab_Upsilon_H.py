@@ -49,7 +49,7 @@ TAU_RARE = 15
 ANY_PT_RANK = -1
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
+process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(-1)
 
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                 SkipEvent = cms.untracked.vstring('ProductNotFound'))
@@ -231,8 +231,8 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
   'HighestSecondHighestPtSelector',
   muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
-  muon1ID=cms.string('tightNew'),
-  muon2ID=cms.string('loose'),# tightNew is another option
+  muon1ID=cms.string('medium'),
+  muon2ID=cms.string('medium'),# tightNew is another option
   oppositeSign = cms.int32(-1) # 1 for SameSignDiMu, -1 for regular
 )
 

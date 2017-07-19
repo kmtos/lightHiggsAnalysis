@@ -68,4 +68,5 @@ echo "" >> $FILENAME
 
 echo "DATA"
 crab submit crabConfig_TestRegions.py >> $FILENAME
-
+echo "" >> $FILENAME
+crab submit crabConfig_Upsilon.py >> $FILENAME

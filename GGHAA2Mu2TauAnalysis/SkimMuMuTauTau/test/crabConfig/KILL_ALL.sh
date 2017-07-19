@@ -8,7 +8,7 @@ cd -
 DATE=`date +TIME_%H-%M-%S_DATE_%y-%m-%d`
 FILENAME="CRAB_KILL_ALL_${DATE}.txt"
 echo $FILENAME
-for dir in crab_projects/*Mass*; do
+for dir in crab_projects/*Upsilon*; do
   echo "$dir"
   crab kill  $dir >> $FILENAME 
 done

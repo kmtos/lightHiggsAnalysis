@@ -1,0 +1,23 @@
+
+CRAB project directory:		/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v1
+Task name:			170706_210148:ktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v1
+Status on the CRAB server:	SUBMITFAILED
+Task URL to use for HELP:	https://cmsweb.cern.ch/crabserver/ui/task/170706_210148%3Aktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v1
+Failure message from the server:		The CRAB3 server backend could not submit any job to the Grid scheduler: Splitting task 170706_210148:ktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v1 on dataset /SingleMuon/Run2016B-23Sep2016-v1/AOD with LumiBased method does not generate any job
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v1/crab.log
+
+CRAB project directory:		/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v3
+Task name:			170706_210205:ktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v3
+Grid scheduler:			crab3@vocms0144.cern.ch
+Status on the CRAB server:	SUBMITTED
+Task URL to use for HELP:	https://cmsweb.cern.ch/crabserver/ui/task/170706_210205%3Aktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v3
+Dashboard monitoring URL:	http://dashb-cms-job.cern.ch/dashboard/templates/task-analysis/#user=ktos&refresh=0&table=Jobs&p=1&records=25&activemenu=2&status=&site=&tid=170706_210205%3Aktos_crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v3
+Status on the scheduler:	FAILED
+
+Jobs status:                    failed         64.8% ( 70/108)
+				finished       35.2% ( 38/108)
+Keyboard Interrupted
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DY_FakeRate_Inv81to101_Mu50_MedMuID_JUL3_B_v3/crab.log
+
+
+

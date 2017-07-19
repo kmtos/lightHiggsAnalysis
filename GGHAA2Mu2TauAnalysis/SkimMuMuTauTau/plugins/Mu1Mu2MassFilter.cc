@@ -60,7 +60,10 @@ class Mu1Mu2MassFilter : public edm::stream::EDFilter<> {
 
       // ----------member data ---------------------------
       edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
+      double minMass_;
+      double maxMass_;
 };
+ 
 
 //
 // constants, enums and typedefs
@@ -74,7 +77,9 @@ class Mu1Mu2MassFilter : public edm::stream::EDFilter<> {
 // constructors and destructor
 //
 Mu1Mu2MassFilter::Mu1Mu2MassFilter(const edm::ParameterSet& iConfig):
-  Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2")))
+  Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
+  minMass_(iConfig.getParameter<double>("minMass")),
+  maxMass_(iConfig.getParameter<double>("maxMass"))
 {
    //now do what ever initialization is needed
     produces<reco::MuonRefVector>();
@@ -105,7 +110,7 @@ Mu1Mu2MassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    double invMass=0;
    invMass=((*pMu1Mu2)[0]->p4()+(*pMu1Mu2)[1]->p4()).M();
 
-   if(invMass >= 40.0)
+   if((invMass <= minMass_ && minMass_!=-1)||(maxMass_!=-1 && invMass>=maxMass_))
       return false;
    else{
       std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);

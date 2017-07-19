@@ -1,0 +1,73 @@
+Will use CRAB configuration file crabConfig_DYHighMass.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223303:ktos_crab_DYHighMass_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_DYHighMass_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_DYLowMass.py
+Error while loading CRAB configuration:
+unexpected indent (crabConfig_DYLowMass.py, line 13)
+Please refer to https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3CommonErrors#Syntax_error_in_CRAB_configurati
+See the ./crab.log file for more details.
+The documentation about the CRAB configuration file can be found in https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile
+
+Will use CRAB configuration file crabConfig_QCD_1000toInf.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223321:ktos_crab_QCD_1000toInf_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_1000toInf_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_QCD_120to170.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223333:ktos_crab_QCD_120to170_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_120to170_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_QCD_15to20.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223346:ktos_crab_QCD_15to20_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_15to20_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_QCD_170to300.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223359:ktos_crab_QCD_170to300_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_170to300_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_QCD_20to30.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Warning: The following output files will not be published, as they are not EDM files: ['RegionB_Tfile.root']
+Sending the request to the server
+Success: Your task has been delivered to the CRAB3 server.
+Task name: 170418_223412:ktos_crab_QCD_20to30_NoIsoDiMu_APR13
+Please use 'crab status' to check how the submission process proceeds.
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_20to30_NoIsoDiMu_APR13/crab.log
+
+Will use CRAB configuration file crabConfig_QCD_300to470.py
+Importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Finished importing CMSSW configuration ../SkimSequence/TestRegionsSkim_Crab_HLT2.py
+Keyboard Interrupted
+Log file is /afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/crabConfig/crab_projects/crab_QCD_300to470_NoIsoDiMu_APR13/crab.log
+
