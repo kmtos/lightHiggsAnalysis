@@ -791,22 +791,14 @@ Common::getIsolatedRecoMuons(const edm::Handle<reco::MuonCollection>& pMuons,
     HighestPtMu1Mu2=reco::Muon(((*pMuons)[1]));
     LowestPtMu1Mu2=reco::Muon(((*pMuons)[0]));
     }
-  double PtSum=0;
-  double Iso=0;
   std::vector<reco::MuonRef> IsoMuons;
-  for(typename reco::PFCandidateCollection::const_iterator iPFCandidate = pPFCandidates->begin(); iPFCandidate != pPFCandidates->end(); ++iPFCandidate){
-    if(deltaR(HighestPtMu1Mu2, *iPFCandidate )<0.4&&(deltaR(HighestPtMu1Mu2, *iPFCandidate)>0.0001&&((HighestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((HighestPtMu1Mu2).pt())>0.0001)&&(deltaR(LowestPtMu1Mu2, *iPFCandidate)>0.0001&&((LowestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((LowestPtMu1Mu2).pt())>0.0001))
-      PtSum+=(*iPFCandidate).pt();
-    else continue;
-  }
-
-  Iso=PtSum/((HighestPtMu1Mu2).pt());
-  if((Iso<isoMax || (isoMax==-1))&& (Iso>isoMin ||(isoMin==0)))
-  {
-    for (reco::MuonCollection::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
+  for (reco::MuonCollection::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
        ++iMuon) {
-    IsoMuons.push_back(reco::MuonRef(pMuons, iMuon - pMuons->begin()));
-    }
+    reco::MuonPFIsolation iso = iMuon->pfIsolationR04(); 
+    double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/iMuon->pt();
+    if((reliso<isoMax || (isoMax==-1)) && (reliso>isoMin || (isoMin==0)))
+      IsoMuons.push_back(reco::MuonRef(pMuons, iMuon - pMuons->begin()));
+
   }
   return IsoMuons;
 }
@@ -828,21 +820,14 @@ Common::getIsolatedRecoMuons(const edm::Handle<reco::MuonRefVector>& pMuons,
     HighestPtMu1Mu2=reco::MuonRef(((*pMuons)[1]));
     LowestPtMu1Mu2=reco::MuonRef(((*pMuons)[0]));
     }
-  double PtSum=0;
-  double Iso=0;
   std::vector<reco::MuonRef> IsoMuons;
-  for(typename reco::PFCandidateCollection::const_iterator iPFCandidate = pPFCandidates->begin(); iPFCandidate != pPFCandidates->end(); ++iPFCandidate){
-    if(deltaR(*HighestPtMu1Mu2, *iPFCandidate )<0.4&&(deltaR(*HighestPtMu1Mu2, *iPFCandidate)>0.0001&&((*HighestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((*HighestPtMu1Mu2).pt())>0.0001)&&(deltaR(*LowestPtMu1Mu2, *iPFCandidate)>0.0001&&((*LowestPtMu1Mu2).pt()-(*iPFCandidate).pt())/((*LowestPtMu1Mu2).pt())>0.0001))
-      PtSum+=(*iPFCandidate).pt();
-    else continue;
-  }
-Iso=PtSum/((*HighestPtMu1Mu2).pt());
-  if((Iso<isoMax || (isoMax==-1)) && (Iso>isoMin || (isoMin==0)) )
-  {
-    for (reco::MuonRefVector::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
+  for (reco::MuonRefVector::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
        ++iMuon) {
-    IsoMuons.push_back(reco::MuonRef(pBaseMuons, iMuon->key()));
-    }
+    reco::MuonPFIsolation iso = (*iMuon)->pfIsolationR04();
+    double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/(*iMuon)->pt();
+    if((reliso<isoMax || (isoMax==-1)) && (reliso>isoMin || (isoMin==0)))
+      IsoMuons.push_back(reco::MuonRef(pBaseMuons, iMuon->key()));
+
   }
   return IsoMuons;
 }
