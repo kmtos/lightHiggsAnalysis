@@ -450,7 +450,7 @@ process.muHadTauSelector = cms.EDFilter(
     tauDMTag = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
-    overlapCandTag = cms.InputTag('Mu45Selector'),
+    overlapCandTag = cms.InputTag('TriggerSelector'),
     overlapCandTag1= cms.InputTag('Mu1Mu2EtaCut'),
     passDiscriminator = cms.bool(True),
     pTMin = cms.double(10.0),
@@ -474,7 +474,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
-    overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
+    overlapCandTag = cms.InputTag('TriggerSelector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
     passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),

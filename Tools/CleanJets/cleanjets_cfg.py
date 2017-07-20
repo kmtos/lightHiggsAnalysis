@@ -18,7 +18,7 @@ process.load("Tools.CleanJets.cleanjets_cfi")
 # Declaring Input and configurations
 #######################################
 process.source = cms.Source("PoolSource",
-         fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/user/ktos/heavyHiggs_125_light_9_2mu2tau_RECO2/heavyHiggs_125_light_9_2mu2tau_RECO2_NUM.root')
+         fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/group/phys_higgs/HiggsExo/ktos/SingleMuon/DY_FakeRate_Inv81to101_Mu51_MedMuID_MultiTrig_JUL3_B_v3/170711_162219/0000/RegionB_selection_82.root')
 )
 
 

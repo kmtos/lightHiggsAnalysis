@@ -238,8 +238,8 @@ process.Mu1Mu2PtRankMuonID=cms.EDFilter(
 
 process.InvMassCut=cms.EDFilter('Mu1Mu2MassFilter',
    				    Mu1Mu2=cms.InputTag('Mu1Mu2PtRankMuonID'),
-				    minMass=cms.double(81),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
-                                    maxMass=cms.double(101)  # -1 for Massgt25, 25.0 regular, -1 for NoMassCut
+				    minMass=cms.double(-1),  # 25.0 for Massgt25, 0,0 regular, -1 for NoMassCut
+                                    maxMass=cms.double(-1)  # -1 for Massgt25, 25.0 regular, -1 for NoMassCut
 )
 
 process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
@@ -318,9 +318,16 @@ process.UpsilonSelector = cms.EDFilter(
                             cms.InputTag("HLT_Dimuon13_Upsilon_v", "", "HLT"),
                             cms.InputTag("HLT_Dimuon0_Upsilon_Muon_v", "", "HLT")
                             ),
-    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v3","","HLT"),
-                                   cms.InputTag("HLT_TkMu50_v1", "", "HLT")
+    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Mu7p5_Track7_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Mu7p5_Track3p5_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Mu7p5_Track2_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Mu7p5_L2Mu2_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Dimuon8_Upsilon_Barrel_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Dimuon13_Upsilon_v2", "", "HLT"),
+                                    cms.InputTag("HLT_Dimuon0_Upsilon_Muon_v2", "", "HLT")
                                    ),
+
     theRightHLTSubFilters = cms.VInputTag(cms.InputTag("hltDisplacedmumuFilterDimuon13Upsilon","","HLT"),
                                           cms.InputTag("hltMu7p5Track7UpsilonTrackMassFiltered", "", "HLT"),
                                           cms.InputTag("hltMu7p5Track3p5UpsilonTrackMassFiltered", "", "HLT"),
@@ -332,7 +339,7 @@ process.UpsilonSelector = cms.EDFilter(
                                           ),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
-    outFileName=cms.string("TriggerSelector.root")
+    outFileName=cms.string("UpsilonSelector.root")
 )
 
 
@@ -484,7 +491,7 @@ process.muHadTauSelector = cms.EDFilter(
     tauDMTag = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs', '', 'SKIM'),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
-    overlapCandTag = cms.InputTag('Mu45Selector'),
+    overlapCandTag = cms.InputTag('TriggerSelector'),
     overlapCandTag1= cms.InputTag('Mu1Mu2EtaCut'),
     passDiscriminator = cms.bool(True),
     pTMin = cms.double(10.0),
@@ -508,7 +515,7 @@ process.muHadIsoTauSelector = cms.EDFilter(
     ),
     jetTag = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM'),
     muonRemovalDecisionTag = cms.InputTag('CleanJets','valMap','SKIM'),
-    overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
+    overlapCandTag = cms.InputTag('TriggerSelector','','SKIM'),
     overlapCandTag1=cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
     passDiscriminator = cms.bool(False),  # False for NoIsoDiTau, True regular
     pTMin=cms.double(10.0),
@@ -534,10 +541,10 @@ process.MuMuSequenceSelector=cms.Sequence(
 )
 
 process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
-                                           process.PFTau#*
-                                           #process.pfBTagging#*
-					   #process.muHadTauSelector*
-                                           #process.muHadIsoTauSelector
+                                           process.PFTau*
+                                           process.pfBTagging*
+					   process.muHadTauSelector*
+                                           process.muHadIsoTauSelector
 )
 
 
