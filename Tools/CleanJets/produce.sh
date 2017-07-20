@@ -21,7 +21,7 @@ EOS_dir_query=`cmsLs /store/user/ktos/${dir_name}`
 EOS_dir_query=`echo $EOS_dir_query | grep "No such file or directory"`
 if [ "EOS_dir_query" != "" ]
     then
-    cmsMkdir /store/user/ktos/${dir_name}
+    eos mkdir  /store/user/ktos/${dir_name}
 fi
 
 #PUT FOR LOOP HERE REPLACING NUM WITH OTHER NUMBER

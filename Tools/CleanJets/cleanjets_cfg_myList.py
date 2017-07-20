@@ -20,7 +20,7 @@ process.load("Tools.CleanJets.cleanjets_cfi")
 #######################################
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
-mylist = FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/Kyle.txt')
+mylist = FileUtils.loadListFromFile('/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/Tools/CleanJets/inputFile_SingleMuon_DYFakeRate.out')
 
 readFiles = cms.untracked.vstring(*mylist)
 process.source = cms.Source("PoolSource",
@@ -30,7 +30,7 @@ process.source = cms.Source("PoolSource",
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
-process.CleanJets.outFileName = cms.string('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/CleanJets_Plots_NUM.root')
+process.CleanJets.outFileName = cms.string('/afs/cern.ch/user/k/ktos/SkimDir/CMSSW_8_0_17/src/Tools/CleanJets/OUTPUT.root')
 
 #######################################
 # HPS Tau Reconstruction alterations 
