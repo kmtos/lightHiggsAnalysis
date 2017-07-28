@@ -13,6 +13,6 @@ def getFileList(inDir, inputName):
     
 
 inputName_='testscript.txt'
-inDir_= '/eos/cms/store/user/mshi/TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/'
+inDir_= '/eos/cms/store/group/phys_higgs/HiggsExo/mshi/SingleMuon/data_RegionBWithMassCut/170519_234905'
 getFileList(inDir_,inputName_)
 

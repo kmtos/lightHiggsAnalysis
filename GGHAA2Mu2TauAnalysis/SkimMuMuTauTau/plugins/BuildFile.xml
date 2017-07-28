@@ -13,6 +13,7 @@
 <use name="DataFormats/HepMCCandidate"/>
 <use name="Tools/Common"/>
 <use name="DataFormats/VertexReco"/>
+<use name="KaMuCa/Calibration"/>
 <use name="root"/>
 <use name="rootgraphics"/>
 <flags EDM_PLUGIN="1"/>

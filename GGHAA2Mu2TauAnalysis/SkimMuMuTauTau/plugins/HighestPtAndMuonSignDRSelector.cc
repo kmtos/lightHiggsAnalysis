@@ -110,7 +110,7 @@ HighestPtAndMuonSignDRSelector::filter(edm::Event& iEvent, const edm::EventSetup
 {
    bool LargerThan0=true;
    using namespace edm;
-
+   using namespace std;
    edm::Handle<reco::MuonRefVector> pMuons;
    iEvent.getByToken(muonTag_, pMuons); 
 
@@ -131,18 +131,22 @@ HighestPtAndMuonSignDRSelector::filter(edm::Event& iEvent, const edm::EventSetup
        else
          continue;
      }
+     //cout<<"maxMuonPt="<<maxMuon->pt()<<std::endl;
      std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
      muonColl->push_back(maxMuon);
 
      for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
      {
+       //cout<<"(*iMuon)->pt() ="<<(*iMuon)->pt()<<"; deltaR(**iMuon, *maxMuon)="<<deltaR(**iMuon, *maxMuon)<<"; sign ="<<((*iMuon)->pdgId() == (1)*((maxMuon)->pdgId()))<<std::endl;
        if ( ((*iMuon)->pt() < (maxMuon->pt())) && ( (passdR_ && deltaR(**iMuon, *maxMuon) < Cut_) 
            || (!passdR_ && deltaR(**iMuon, *maxMuon) > Cut_) || (Cut_==-1) ) && ((*iMuon)->pt() > Mu2PtCut_) )
        {
          if ( (oppositeSign_ && (*iMuon)->pdgId() == (-1)*((maxMuon)->pdgId()) ) || (!oppositeSign_ && (*iMuon)->pdgId()==(maxMuon)->pdgId() ) )
          {
+           //cout<<"This one passed"<<std::endl;
            double deltaR=0.0;
            OppositeSignSmallDRMuon=(*iMuon);
+           //cout<<"OppositeSignMuonPt="<<OppositeSignSmallDRMuon->pt()<<std::endl;
            muonColl->push_back(OppositeSignSmallDRMuon);
            deltaR=reco::deltaR(*maxMuon, *OppositeSignSmallDRMuon);
            histos1D_["deltaR"]->Fill(deltaR);

@@ -102,6 +102,7 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
       void reset(const bool);
       virtual void endJob() override; 
 // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::PFJetCollection> corrJetTag_;
   edm::EDGetTokenT<reco::PFTauRefVector> tauTag_;
   edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
 
@@ -145,6 +146,7 @@ class MuMuTauTauRecoAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResou
 // constructors and destructor
 //
 MuMuTauTauRecoAnalyzer::MuMuTauTauRecoAnalyzer(const edm::ParameterSet& iConfig):
+  corrJetTag_(consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("corrJetTag"))),
   tauTag_(consumes<reco::PFTauRefVector>(iConfig.getParameter<edm::InputTag>("tauTag"))),
   Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
   IsolatedMuon_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("IsolatedMuon"))),
@@ -183,6 +185,8 @@ void
 MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+  edm::Handle<reco::PFJetCollection> pPFJets;
+  iEvent.getByToken(corrJetTag_, pPFJets);
 
   edm::Handle<reco::PFTauRefVector> pTaus;
   iEvent.getByToken(tauTag_, pTaus);  
@@ -272,6 +276,12 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   double HiggsPTWeight = 1.0;
    double tauHadPTWeight = 1.0;
   std::vector<reco::PFTauRef> pTSortedTaus;
+  int NJets =pPFJets->size();
+  std::cout<<"NJets="<<NJets<<std::endl;
+  for(reco::PFJetCollection::const_iterator iJet=pPFJets->begin(); iJet != pPFJets->end(); ++ iJet)
+  { 
+    double JetPt=iJet->pt();
+  }
   for (reco::PFTauRefVector::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); 
        ++iTau) { pTSortedTaus.push_back(*iTau); }
   std::vector<reco::PFTauRef> taus = pTSortedTaus;
@@ -294,7 +304,7 @@ MuMuTauTauRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    tauHadIso_->Fill((*pTauHadIso)[*iTau], PUWeight);
    //std::cout<<"Iso=="<<Iso<<"(*pTauHadIso)[*iTau]=="<<((*pTauHadIso)[*iTau])<<std::endl;
    double ditauiso=(*pTauHadIso)[*iTau];
-   Iso2D_->Fill(reliso, ditauiso);
+   Iso2D_->Fill(HighestPtMu1Mu2->pt(), ditauiso);
    //ABCD method region defined as:
    //region A Iso<0.5, di-tau iso<10GeV,
    //region B Iso>1.0, di-tau iso<10GeV,
@@ -363,18 +373,18 @@ MuMuTauTauRecoAnalyzer::beginJob()
 {
   out_= new TFile(outFileName_.c_str(),"RECREATE");
   muHadMass_=new TH1F("muHadMass", ";H125a19 m_{#mu+X} (GeV);", muHadMassBins_.size()-1, &muHadMassBins_[0]);  
-  tauHadIso_=new TH1F("tauHadIso", ";H125a19 Isolation energy (GeV);", 10, 0.0, 10.0);
+  tauHadIso_=new TH1F("tauHadIso", ";H125a19 Isolation energy (GeV);", 100, 0.0, 500.0);
   reliso_=new TH1F("reliso",";H125a19 di-mu isolation",50,0.0,5.0);
-  Iso2D_=new TH2F("Iso2D", "H750a9 Isolation of di-mu(X-aixs) VS di-tau", 50,0.0,5.0, 50,0.0,500.0);
+  Iso2D_=new TH2F("Iso2D", "H750a9 Isolation of di-mu(X-aixs) VS di-tau", 50,0.0,500.0, 50,0.0,500.0);
   Iso2D_->SetXTitle("relative Isolation of di-mu");
   Iso2D_->SetYTitle("Tau Isolation Energy");
-  invMass_=new TH1F("invMass", "H125a19 invMass di-mu(GeV)", 100, 0.0, 30.0);
-  HighestPt_=new TH1F("HighestPt", "H125a19 HighestPt-Muon's Pt(GeV)", 100,0,500);
-  LowestPt_=new TH1F("LowestPt","H125a19 LowestPt-Muon's Pt (GeV)", 100, 0, 400);
+  invMass_=new TH1F("invMass", "H125a19 invMass di-mu(GeV)", 20, 0.0, 30.0);
+  HighestPt_=new TH1F("HighestPt", "H125a19 HighestPt-Muon's Pt(GeV)", 20,0,500);
+  LowestPt_=new TH1F("LowestPt","H125a19 LowestPt-Muon's Pt (GeV)", 20, 0, 400);
   dR_=new TH1F("dR(Mu1,Mu2)", "H125a19 dR(Mu1, Mu2)", 100, 0.0, 1.0);
-  dRTauHighestPtMuon_=new TH1F("dR(Mu1, Tau)", "H125a19 dR(Mu1, Tau)", 100, 0.0, 5.0);
+  dRTauHighestPtMuon_=new TH1F("dR(Mu1, Tau)", "H125a19 dR(Mu1, Tau)", 20, 0.0, 5.0);
   Mu3Pt_=new TH1F("Mu3Pt","Mu3Pt",100,0.0,100.0);
-  MissingEnergy_=new TH1F("MissingEnergy","MissingEnergy", 100,0.0,200.0);
+  MissingEnergy_=new TH1F("MissingEnergy","MissingEnergy", 20,0.0,200.0);
   count_jets_=new TH1F("count_jets","count_jets", 20.0, 0.0, 20.0);
   count_isomu_=new TH1F("count_isomu","count_isomu", 10,0.0,10.0);
 

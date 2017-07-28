@@ -77,6 +77,7 @@ class Mu1Mu2Analyzer : public edm::EDAnalyzer{
       std::vector<double> Mu2PtBins_;
       std::vector<double> invMassBins_;
       bool MC_;
+      float MC_weighting;
       edm::EDGetTokenT<std::vector<PileupSummaryInfo>> PUTag_;
       float EventWeight;
       float summedWeights;
@@ -164,15 +165,18 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       // if Mc, do NLO corrections
       EventWeight = 1.0;
+      MC_weighting=1.0;
       edm::Handle<GenEventInfoProduct> gen_ev_info;
       iEvent.getByToken(generator_, gen_ev_info);
       if(gen_ev_info.isValid())
       {
          EventWeight = gen_ev_info->weight();
+         cout<<"EventWeight="<<EventWeight<<std::endl;
+         float mc_weight = ( EventWeight > 0 ) ? 1 : -1;
+         MC_weighting=mc_weight;
       }
       summedWeights+=EventWeight;
       NEvents++;
-      cout<<"EventWeight="<<EventWeight<<std::endl;
     
    }
 
@@ -200,11 +204,20 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    etaOfMu2=LowestPtMu1Mu2->eta();
    histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
    histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
-   histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
-   histos1D_["Mu2Pt"]->Fill(Mu2Pt);
-   histos1D_["dRMu1Mu2"]->Fill(dR);
-   histos1D_["dRMu1Mu2Wider"]->Fill(dR);
-   histos1D_["etaOfMu2"]->Fill(etaOfMu2);
+   if(MC_){
+      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt(),pu_weight*MC_weighting);
+      histos1D_["Mu2Pt"]->Fill(Mu2Pt,pu_weight*MC_weighting);
+      histos1D_["dRMu1Mu2"]->Fill(dR,pu_weight*MC_weighting);
+      histos1D_["dRMu1Mu2Wider"]->Fill(dR,pu_weight*MC_weighting);
+      histos1D_["etaOfMu2"]->Fill(etaOfMu2,pu_weight*MC_weighting);
+   }
+   else{
+      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
+      histos1D_["Mu2Pt"]->Fill(Mu2Pt);
+      histos1D_["dRMu1Mu2"]->Fill(dR);
+      histos1D_["dRMu1Mu2Wider"]->Fill(dR);
+      histos1D_["etaOfMu2"]->Fill(etaOfMu2);
+   }
    for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMu1Mu2=pMu1Mu2->begin(); iMu1Mu2!=pMu1Mu2->end();++iMu1Mu2)
    {
       Mu1Mu2Ptrs.push_back(const_cast<reco::Muon*>(&(**iMu1Mu2)));
@@ -216,7 +229,7 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
      
    if(MC_) 
-      histos1D_["invMass"]->Fill(invMass,pu_weight*EventWeight);
+      histos1D_["invMass"]->Fill(invMass,pu_weight*MC_weighting);
    else
       histos1D_["invMass"]->Fill(invMass);
 }
@@ -248,13 +261,6 @@ void
 Mu1Mu2Analyzer::endJob() 
 { cout<<"NEvents="<<NEvents<<std::endl;
   cout<<"summedWeights="<<summedWeights<<std::endl;
-  if(MC_)
-  {
-    float intLumi=5780.0;
-    float xsec=1921.8*3;
-    float sampleLumi=summedWeights/xsec;
-    histos1D_["invMass"]->Scale(intLumi/sampleLumi);
-  }
 }
 
 
