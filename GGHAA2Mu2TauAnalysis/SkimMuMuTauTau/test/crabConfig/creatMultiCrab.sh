@@ -13,7 +13,7 @@ declare -a arr=('/QCD_Pt-1000toInf_MuEnrichedPt5_TuneCUETP8M1_13TeV_pythia8/RunI
 
 prefix="crabConfig_QCD_"
 afterfix=".py"
-selection="_RegionBWithMassCut"
+selection="_RegionBWithMassCut1"
 FileBasedOrLumi="FileBased"
 for i in "${arr[@]}"
 do
