@@ -23,8 +23,6 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "KaMuCa/Calibration/interface/KalmanMuonCalibrator.h"
-
 // system include files
 #include <Math/VectorUtil.h>
 #include <memory>
@@ -42,13 +40,15 @@ HZZ4LeptonsMuonCalibrator::HZZ4LeptonsMuonCalibrator(const edm::ParameterSet& ps
   muonLabel        = consumes<edm::View<reco::Muon> >(pset.getParameter<edm::InputTag>("muonCollection"));
 
   string alias;
+  identifier_=pset.getParameter<string>("identifier");
+  calibrator = new KalmanMuonCalibrator(identifier_);
   produces<reco::MuonCollection>(); 
   produces<edm::ValueMap<float> >("CorrPtError");
 }
 
 
 HZZ4LeptonsMuonCalibrator::~HZZ4LeptonsMuonCalibrator() {
- 
+ delete calibrator;
 }
 
 
@@ -78,37 +78,37 @@ void HZZ4LeptonsMuonCalibrator::produce(edm::Event& iEvent, const edm::EventSetu
   // Loop over muons
   for (mIter = muons->begin(); mIter != muons->end(); ++mIter ) {
     
-  
+    reco::Muon* calibmu = mIter->clone(); 
     if  (mIter->pt()<200 && mIter->muonBestTrackType()==1) {
       if (isData){
-	KalmanMuonCalibrator calibrator("DATA_80X_13TeV");
-	corrPt = calibrator.getCorrectedPt(mIter->pt(), mIter->eta(), mIter->phi(), mIter->charge());
-	corrPtError = corrPt * calibrator.getCorrectedError(corrPt, mIter->eta(), mIter->bestTrack()->ptError()/corrPt );
+	corrPt = calibrator->getCorrectedPt(mIter->pt(), mIter->eta(), mIter->phi(), mIter->charge());
+	corrPtError = corrPt * calibrator->getCorrectedError(corrPt, mIter->eta(), mIter->bestTrack()->ptError()/corrPt );
 	smearedPt=corrPt; // no smearing on data
 	smearedPtError=corrPtError; // no smearing on data
       }
       else { // isMC - calibration from data + smearing
-	KalmanMuonCalibrator calibrator("MC_80X_13TeV");
-	corrPt = calibrator.getCorrectedPt(mIter->pt(), mIter->eta(), mIter->phi(), mIter->charge());
-	corrPtError = corrPt * calibrator.getCorrectedError(corrPt, mIter->eta(), mIter->bestTrack()->ptError()/corrPt );
-	// smearedPt = calibrator.smearForSync(corrPt, mIter->eta()); // for synchronization
-	smearedPt = calibrator.smear(corrPt, mIter->eta());
-	//smearedPtError = smearedPt * calibrator.getCorrectedErrorAfterSmearing(smearedPt, mIter->eta(), corrPtError /smearedPt );
-	smearedPtError = smearedPt * calibrator.getCorrectedError(smearedPt, mIter->eta(), mIter->bestTrack()->ptError()/smearedPt );
+	corrPt = calibrator->getCorrectedPt(mIter->pt(), mIter->eta(), mIter->phi(), mIter->charge());
+	corrPtError = corrPt * calibrator->getCorrectedError(corrPt, mIter->eta(), mIter->bestTrack()->ptError()/corrPt );
+	// smearedPt = calibrator->smearForSync(corrPt, mIter->eta()); // for synchronization
+	smearedPt = calibrator->smear(corrPt, mIter->eta());
+	//smearedPtError = smearedPt * calibrator->getCorrectedErrorAfterSmearing(smearedPt, mIter->eta(), corrPtError /smearedPt );
+	smearedPtError = smearedPt * calibrator->getCorrectedError(smearedPt, mIter->eta(), mIter->bestTrack()->ptError()/smearedPt );
       }
     }
     pterror.push_back(smearedPtError);
     //cout << "Muon pT= " << calibmu->pt() << " Corrected Muon pT= " << smearedPt << " and pT error= " << smearedPtError << endl;
     reco::Candidate::PolarLorentzVector p4Polar_;
     p4Polar_ = reco::Candidate::PolarLorentzVector(smearedPt, mIter->eta(), mIter->phi(), mIter->mass());
-    mIter->setP4(p4Polar_);
-    
+    //cout<<p4Polar_<<std::endl;
+    calibmu->setP4(p4Polar_);
+    Gmuon->push_back( *calibmu );  
   }
 
   fillerCorrPtError.insert(muons,pterror.begin(),pterror.end());
   fillerCorrPtError.fill();
   
   const string iName = "";
+  iEvent.put( Gmuon, iName );
   iEvent.put( CorrPtErrorMap, "CorrPtError");
 
 }

@@ -77,12 +77,9 @@ class Mu1Mu2Analyzer : public edm::EDAnalyzer{
       std::vector<double> Mu2PtBins_;
       std::vector<double> invMassBins_;
       bool MC_;
-      float MC_weighting;
+      edm::FileInPath _fp;
       edm::EDGetTokenT<std::vector<PileupSummaryInfo>> PUTag_;
       float EventWeight;
-      float summedWeights;
-      float NEvents;
-      float summedNormWeights;
       edm::EDGetTokenT<GenEventInfoProduct> generator_;
 };
 
@@ -104,6 +101,7 @@ Mu1Mu2Analyzer::Mu1Mu2Analyzer(const edm::ParameterSet& iConfig):
   Mu2PtBins_(iConfig.getParameter<std::vector<double> >("Mu2PtBins")),
   invMassBins_(iConfig.getParameter<std::vector<double>>("invMassBins")),
   MC_(iConfig.getParameter<bool>("MC")),
+  _fp(iConfig.getParameter<edm::FileInPath>("fp")),
   PUTag_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("PUTag"))),
   generator_(consumes<GenEventInfoProduct>(iConfig.existsAs<edm::InputTag>("Generator") ?
                                            iConfig.getParameter<edm::InputTag>("Generator"):
@@ -137,7 +135,8 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    //if MC do Pileup reweighting
    double pu_weight = 1.0; 
    TFile *_filePU;
-   _filePU= TFile::Open("/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/plugins/pileup_MC_80x_271036-276811_69200.root");
+   std::string FullFilePath = _fp.fullPath();
+   _filePU= TFile::Open(FullFilePath.c_str());
    TH1D *puweight = (TH1D*)_filePU->Get("puweight");
    float num_PU_vertices = -1;
    if (MC_ ) {
@@ -165,19 +164,13 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
       // if Mc, do NLO corrections
       EventWeight = 1.0;
-      MC_weighting=1.0;
       edm::Handle<GenEventInfoProduct> gen_ev_info;
       iEvent.getByToken(generator_, gen_ev_info);
       if(gen_ev_info.isValid())
       {
          EventWeight = gen_ev_info->weight();
-         cout<<"EventWeight="<<EventWeight<<std::endl;
-         float mc_weight = ( EventWeight > 0 ) ? 1 : -1;
-         MC_weighting=mc_weight;
       }
-      summedWeights+=EventWeight;
-      NEvents++;
-    
+ 
    }
 
    _filePU->Close();
@@ -205,11 +198,11 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
    histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
    if(MC_){
-      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt(),pu_weight*MC_weighting);
-      histos1D_["Mu2Pt"]->Fill(Mu2Pt,pu_weight*MC_weighting);
-      histos1D_["dRMu1Mu2"]->Fill(dR,pu_weight*MC_weighting);
-      histos1D_["dRMu1Mu2Wider"]->Fill(dR,pu_weight*MC_weighting);
-      histos1D_["etaOfMu2"]->Fill(etaOfMu2,pu_weight*MC_weighting);
+      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt(),pu_weight*EventWeight);
+      histos1D_["Mu2Pt"]->Fill(Mu2Pt,pu_weight*EventWeight);
+      histos1D_["dRMu1Mu2"]->Fill(dR,pu_weight*EventWeight);
+      histos1D_["dRMu1Mu2Wider"]->Fill(dR,pu_weight*EventWeight);
+      histos1D_["etaOfMu2"]->Fill(etaOfMu2,pu_weight*EventWeight);
    }
    else{
       histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
@@ -229,7 +222,7 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
      
    if(MC_) 
-      histos1D_["invMass"]->Fill(invMass,pu_weight*MC_weighting);
+      histos1D_["invMass"]->Fill(invMass,pu_weight*EventWeight);
    else
       histos1D_["invMass"]->Fill(invMass);
 }
@@ -239,8 +232,6 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Mu1Mu2Analyzer::beginJob()
 {
-  summedWeights=0.0;
-  NEvents=0.0;
   edm::Service<TFileService> fileService;
   histos1D_["pt_reco"]=fileService->make<TH1D>("pt of reco muon","pt of Mu1 Mu2 (H750a09)",100, 0.0, 100);
   histos1D_["invMass"]=fileService->make<TH1D>("invMass of Mu1 Mu2","invMass of Mu1 Mu2 (H750a09)",invMassBins_.size()-1, &invMassBins_[0]);
@@ -248,8 +239,8 @@ Mu1Mu2Analyzer::beginJob()
   histos2D_["Mu1PtMu2Pt"]=fileService->make<TH2D>("Mu1PtMu2Pt","Mu1Pt vs Mu2Pt", 100, 0, 500, 40, 0, 200);
   histos1D_["Mu2Pt"]=fileService->make<TH1D>("pt of Mu2", "Pt of RecoMu2",Mu2PtBins_.size()-1,&Mu2PtBins_[0]);
   histos1D_["Mu2Pt"]->Sumw2();
-  histos1D_["Mu1Pt"]=fileService->make<TH1D>("pt of Mu1", "pt of Mu1", 100, 0, 500);
-  histos1D_["dRMu1Mu2"]=fileService->make<TH1D>("dRMu1Mu2", "dRMu1Mu2", 50, 0, 5.0);
+  histos1D_["Mu1Pt"]=fileService->make<TH1D>("pt of Mu1", "pt of Mu1", 100, 0, 200);
+  histos1D_["dRMu1Mu2"]=fileService->make<TH1D>("dRMu1Mu2", "dRMu1Mu2", 50, 0, 2.0);
   histos1D_["dRMu1Mu2Wider"]=fileService->make<TH1D>("dRMu1Mu2Wider", "dRMu1Mu2Wider", 50, 0, 5.0);
   histos2D_["dRVsMu2Pt"]=fileService->make<TH2D>("dRVsMu2Pt", "dRVsMu2Pt", 50, 0, 5.0, 50, 0, 50.0);
   histos1D_["etaOfMu2"]=fileService->make<TH1D>("Eta of Mu2", "Eta of Mu2", 100, -5.0, 5.0);
@@ -259,10 +250,8 @@ Mu1Mu2Analyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 Mu1Mu2Analyzer::endJob() 
-{ cout<<"NEvents="<<NEvents<<std::endl;
-  cout<<"summedWeights="<<summedWeights<<std::endl;
+{
 }
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

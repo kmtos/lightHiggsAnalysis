@@ -60,6 +60,7 @@ class HighestPtAndMuonSignDRSelector : public edm::EDFilter {
       // ----------member data ---------------------------
   edm::EDGetTokenT<reco::MuonRefVector> muonTag_; 
   double Cut_;
+  double Mu1PtCut_;
   double Mu2PtCut_;
   bool oppositeSign_;
   bool passdR_;
@@ -81,6 +82,7 @@ class HighestPtAndMuonSignDRSelector : public edm::EDFilter {
 HighestPtAndMuonSignDRSelector::HighestPtAndMuonSignDRSelector(const edm::ParameterSet& iConfig):
   muonTag_(consumes<reco::MuonRefVector>(iConfig.getParameter<edm::InputTag>("muonTag"))),
   Cut_(iConfig.getParameter<double>("dRCut")),
+  Mu1PtCut_(iConfig.getParameter<double>("Mu1PtCut")),
   Mu2PtCut_(iConfig.getParameter<double>("Mu2PtCut")),
   oppositeSign_(iConfig.getParameter<bool>("oppositeSign")),
   passdR_(iConfig.existsAs<bool>("passdR")? iConfig.getParameter<bool>("passdR"):true),  
@@ -139,7 +141,7 @@ HighestPtAndMuonSignDRSelector::filter(edm::Event& iEvent, const edm::EventSetup
      {
        //cout<<"(*iMuon)->pt() ="<<(*iMuon)->pt()<<"; deltaR(**iMuon, *maxMuon)="<<deltaR(**iMuon, *maxMuon)<<"; sign ="<<((*iMuon)->pdgId() == (1)*((maxMuon)->pdgId()))<<std::endl;
        if ( ((*iMuon)->pt() < (maxMuon->pt())) && ( (passdR_ && deltaR(**iMuon, *maxMuon) < Cut_) 
-           || (!passdR_ && deltaR(**iMuon, *maxMuon) > Cut_) || (Cut_==-1) ) && ((*iMuon)->pt() > Mu2PtCut_) )
+           || (!passdR_ && deltaR(**iMuon, *maxMuon) > Cut_) || (Cut_==-1) ) && ((*iMuon)->pt() > Mu2PtCut_) && (maxMuon->pt() > Mu1PtCut_) )
        {
          if ( (oppositeSign_ && (*iMuon)->pdgId() == (-1)*((maxMuon)->pdgId()) ) || (!oppositeSign_ && (*iMuon)->pdgId()==(maxMuon)->pdgId() ) )
          {
