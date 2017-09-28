@@ -54,7 +54,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True),
                 SkipEvent = cms.untracked.vstring('ProductNotFound'))
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 #process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(*mylist))
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring())
 
@@ -268,14 +268,14 @@ process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu45_eta2p1_v3", "", "HLT2")
                             ),
-    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT"),#TTBar background is v2
-    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),#v2
-    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT"),
+    theRightHLTTag = cms.InputTag("HLT_Mu45_eta2p1_v3","","HLT2"),#TTBar background is v2
+    #theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu16orMu25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),#v2
+    theRightHLTSubFilter1 = cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered45e2p1Q","","HLT2"),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
@@ -285,63 +285,47 @@ process.TriggerSelector = cms.EDFilter(
     'MuonTriggerObjectFilter_MultiTrig',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v", "", "HLT"),
-                            cms.InputTag("HLT_TkMu50_v", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v", "", "HLT2"),
+                            cms.InputTag("HLT_TkMu50_v", "", "HLT2")
                             ),
-    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v3","","HLT"),
-                                   cms.InputTag("HLT_TkMu50_v1", "", "HLT")
+    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v3","","HLT2"),
+                                   cms.InputTag("HLT_TkMu50_v1", "", "HLT2")
                                    ),
-    theRightHLTSubFilters = cms.VInputTag(cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q","","HLT"),
-                                          cms.InputTag("hltL3fL1sMu25f0TkFiltered50Q", "", "HLT"),
+    theRightHLTSubFilters = cms.VInputTag(cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q","","HLT2"),
+                                          cms.InputTag("hltL3fL1sMu25f0TkFiltered50Q", "", "HLT2"),
                                           ),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("TriggerSelector.root")
 )
 
-process.UpsilonSelector = cms.EDFilter(
+process.TriggerSelectorDoubleMu = cms.EDFilter(
     'MuonTriggerObjectFilter_MultiTrig',
     recoObjTag = cms.InputTag('PtEtaCut'),
     genParticleTag = cms.InputTag('genParticles'),
-    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT"),
-    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT"),
+    triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
+    triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
     MatchCut = cms.untracked.double(0.01),
-    hltTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Mu7p5_Track7_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Mu7p5_Track3p5_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Mu7p5_Track2_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Mu7p5_L2Mu2_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Dimuon8_Upsilon_Barrel_v", "", "HLT"),
-                            cms.InputTag("HLT_Dimuon13_Upsilon_v", "", "HLT"),
-                            cms.InputTag("HLT_Dimuon0_Upsilon_Muon_v", "", "HLT")
+    hltTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v", "", "HLT2"),
+                            cms.InputTag("HLT_TkMu50_v", "", "HLT2"),
+                            cms.InputTag("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v"),
+                            cms.InputTag("HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v")
                             ),
-    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Dimuon13_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Mu7p5_Track7_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Mu7p5_Track3p5_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Mu7p5_Track2_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Mu7p5_L2Mu2_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Dimuon8_Upsilon_Barrel_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Dimuon13_Upsilon_v2", "", "HLT"),
-                                    cms.InputTag("HLT_Dimuon0_Upsilon_Muon_v2", "", "HLT")
+    theRightHLTTags = cms.VInputTag(cms.InputTag("HLT_Mu50_v3","","HLT2"),
+                                   cms.InputTag("HLT_TkMu50_v1", "", "HLT2")
                                    ),
-
-    theRightHLTSubFilters = cms.VInputTag(cms.InputTag("hltDisplacedmumuFilterDimuon13Upsilon","","HLT"),
-                                          cms.InputTag("hltMu7p5Track7UpsilonTrackMassFiltered", "", "HLT"),
-                                          cms.InputTag("hltMu7p5Track3p5UpsilonTrackMassFiltered", "", "HLT"),
-                                          cms.InputTag("hltMu7p5Track2UpsilonTrackMassFiltered", "", "HLT"),
-                                          cms.InputTag("hltMu7p5L2Mu2UpsilonTrackMassFiltered", "", "HLT"),
-                                          cms.InputTag("hltDisplacedmumuFilterDimuon8UpsilonBarrel", "", "HLT"),
-                                          cms.InputTag("hltDisplacedmumuFilterDimuon13Upsilon", "", "HLT"),
-                                          cms.InputTag("hltTripleMuL3PreFiltered0", "", "HLT")
+    theRightHLTSubFilters = cms.VInputTag(cms.InputTag("hltL3fL1sMu22Or25L1f0L2f10QL3Filtered50Q","","HLT2"),
+                                          cms.InputTag("hltL3fL1sMu25f0TkFiltered50Q", "", "HLT2"),
+                                          cms.InputTag("hltDiMuonGlb17Glb8RelTrkIsoFiltered0p4", "", "HLT2"), # hltL3fL1sDoubleMu114L1f0L2f10OneMuL3Filtered17
+                                          cms.InputTag("hltDiMuonGlb17Trk8RelTrkIsoFiltered0p4", "", "HLT2")  # hltL3fL1sDoubleMu114L1f0L2f10L3Filtered17
                                           ),
     HLTSubFilters = cms.untracked.VInputTag(""),
     minNumObjsToPassFilter1= cms.uint32(1),
-    outFileName=cms.string("UpsilonSelector.root")
+    outFileName=cms.string("TriggerSelector.root")
 )
-
 
 process.Mu3=cms.EDFilter('VetoMuon',
   muonTag=cms.InputTag('MuonIWant'),
@@ -411,7 +395,7 @@ process.Mu1Mu2MassSelection=cms.EDFilter(
 
 #clean the jets of soft muons, then rebuild the taus
 
-process.CleanJets.muonSrc=cms.InputTag('tauMuonPtSelectorNoReq') # 
+process.CleanJets.muonSrc=cms.InputTag('tauMuonPtSelector') # 
 process.CleanJets.PFCandSrc = cms.InputTag('particleFlow')
 process.CleanJets.cutOnGenMatches = cms.bool(False)
 process.CleanJets.outFileName = cms.string('CleanJets.root')
@@ -421,9 +405,9 @@ process.ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag('CleanJets', 'ak4PFJetsN
 process.ak4PFJetsRecoTauChargedHadrons.jetSrc = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM')
 process.combinatoricRecoTaus.jetSrc = cms.InputTag('CleanJets', 'ak4PFJetsNoMu', 'SKIM')
 
-process.recoTauCommonSequence = cms.Sequence(   process.Mu3NoReq*
-						process.Mu3IDNoReq*
-						process.tauMuonPtSelectorNoReq*
+process.recoTauCommonSequence = cms.Sequence(   process.Mu3*
+						process.Mu3ID*
+						process.tauMuonPtSelector*
 						process.CleanJets*
 						process.ak4PFJetTracksAssociatorAtVertex*
 						process.recoTauAK4PFJets08Region*
@@ -536,15 +520,14 @@ process.MuMuSequenceSelector=cms.Sequence(
 	process.Mu1Mu2EtaCut*
         process.Isolate*
         process.PtEtaCut*
-        process.UpsilonSelector*
         process.TriggerSelector
 )
 
-process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector#*
-                                           #process.PFTau*
-                                           #process.pfBTagging*
-					   #process.muHadTauSelector*
-                                           #process.muHadIsoTauSelector
+process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector*
+                                           process.PFTau*
+                                           process.pfBTagging*
+					   process.muHadTauSelector*
+                                           process.muHadIsoTauSelector
 )
 
 
