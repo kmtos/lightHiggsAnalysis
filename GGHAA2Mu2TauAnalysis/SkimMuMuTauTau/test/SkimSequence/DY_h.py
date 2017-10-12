@@ -241,16 +241,16 @@ process.hTozzTo4leptonsMuonCalibrator = cms.EDProducer("HZZ4LeptonsMuonCalibrato
     identifier = cms.string("MC_80X_13TeV"),
     isData         = cms.bool(False)
 )
-process.MuonIWant = cms.EDFilter('MuonRefSelector',
+MU_CUT=("pt>5.0 && abs(eta)<2.4")
+process.PreMuons = cms.EDFilter('MuonRefSelector',
                                  src = cms.InputTag("muons"),
-                                 #src = cms.InputTag("hTozzTo4leptonsMuonCalibrator","","SKIM"),
-                                 cut = cms.string('pt > 0.0'),
+                                 cut = cms.string(MU_CUT),
                                  filter = cms.bool(True)
 )
 
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
-    recoObjTag = cms.InputTag('MuonIWant'),
+    recoObjTag = cms.InputTag('PreMuons'),
     genParticleTag = cms.InputTag('genParticles'),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
     triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
@@ -264,32 +264,25 @@ process.Mu45Selector = cms.EDFilter(
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
 )
+
+process.AllPreMuonsID=cms.EDFilter(
+  'MuonsID',
+  muonTag=cms.InputTag('PreMuons'),
+  vtxTag= cms.InputTag('offlinePrimaryVertices'),
+  muonID=cms.string('medium')
+)
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
-                muonTag=cms.InputTag('MuonIWant'),
+                muonTag=cms.InputTag('AllPreMuonsID'),
                 dRCut=cms.double(-1),
- 		passdR=cms.bool(True),
+                passdR=cms.bool(True),
                 Mu1PtCut=cms.double(20.0),
                 Mu2PtCut=cms.double(20.0),
                 oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
 )
-process.Mu1Mu2PtRankMuonID=cms.EDFilter(
-  'HighestSecondHighestPtSelector',
-  muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
-  vtxTag= cms.InputTag('offlinePrimaryVertices'),
-  muon1ID=cms.string('medium'),
-  muon2ID=cms.string('medium')#tightNew is another option
-)
 
-process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('Mu1Mu2PtRankMuonID'),
-                                 Eta=cms.double(2.4),
-                                 Pt=cms.double(0.0),
-                                 minNumObjsToPassFilter=cms.uint32(2)
-
-)
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
-                                muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+                                muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
                                 isoMax=cms.double(0.25),
                                 isoMin=cms.double(0.0),
                                 baseMuonTag=cms.InputTag('muons'),
@@ -483,7 +476,7 @@ process.Mu1Mu2Analyzer=cms.EDAnalyzer(
   Mu2PtBins=cms.vdouble(x for x in range(0, 200)),
   invMassBins=cms.vdouble(x for x in range(60, 120)),
   MC=cms.bool(True),
-  fp=cms.FileInPath("GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/data/pileup_MC_80x_271036-276811_69200.root"),
+  fp=cms.FileInPath("GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/data/pileupWeightForEraC.root"),
   PUTag=cms.InputTag("addPileupInfo","","HLT"),
   Generator=cms.InputTag("generator","","SIM")
 )
@@ -492,11 +485,10 @@ process.MuMuSequenceSelector=cms.Sequence(
         #process.TriggerAnalyzer0*
         process.lumiTree*
         process.HLTEle*
-        process.hTozzTo4leptonsMuonCalibrator*
-	process.MuonIWant*
+        #process.hTozzTo4leptonsMuonCalibrator*
+	process.PreMuons*
+        process.AllPreMuonsID*
         process.HighestPtAndMuonSignDRSelector*
-        process.Mu1Mu2PtRankMuonID*
-        process.Mu1Mu2EtaCut*
         process.Isolate*
         process.MassCut*
         process.Mu1Mu2Analyzer

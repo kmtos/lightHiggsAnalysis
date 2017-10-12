@@ -1,16 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-#mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/SignalH125a05.txt')
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/DYLow_raw.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/test.txt')
 process = cms.Process("SKIM")
 #Debug utils
-process.ProfilerService = cms.Service (
-      "ProfilerService",
-       firstEvent = cms.untracked.int32(2),
-       lastEvent = cms.untracked.int32(500),
-       paths = cms.untracked.vstring('schedule')
-)
+#process.ProfilerService = cms.Service (
+#      "ProfilerService",
+#       firstEvent = cms.untracked.int32(2),
+#       lastEvent = cms.untracked.int32(500),
+#       paths = cms.untracked.vstring('schedule')
+#)
 #process.SimpleMemoryCheck = cms.Service(
 #    "SimpleMemoryCheck",
 #    ignoreTotal = cms.untracked.int32(1)
@@ -234,10 +233,10 @@ process.hTozzTo4leptonsMuonCalibrator = cms.EDProducer("HZZ4LeptonsMuonCalibrato
     identifier = cms.string("DATA_80X_13TeV"),
     isData         = cms.bool(True)
 )
-process.MuonIWant = cms.EDFilter('MuonRefSelector',
-                                 #src = cms.InputTag("hTozzTo4leptonsMuonCalibrator","","SKIM"),
+MU_CUT=("pt>5.0 && abs(eta)<2.4")
+process.PreMuons = cms.EDFilter('MuonRefSelector',
                                  src = cms.InputTag("muons"),
-                                 cut = cms.string('pt > 0.0'),
+                                 cut = cms.string(MU_CUT),
                                  filter = cms.bool(True)
 )
 process.Mu45Selector = cms.EDFilter(
@@ -256,32 +255,24 @@ process.Mu45Selector = cms.EDFilter(
     minNumObjsToPassFilter1= cms.uint32(1),
     outFileName=cms.string("Mu45Selector.root")
 )
+process.AllPreMuonsID=cms.EDFilter(
+  'MuonsID',
+  muonTag=cms.InputTag('PreMuons'),
+  vtxTag= cms.InputTag('offlinePrimaryVertices'),
+  muonID=cms.string('medium')
+)
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
-                muonTag=cms.InputTag('MuonIWant'),
+                muonTag=cms.InputTag('AllPreMuonsID'),
                 dRCut=cms.double(-1),
+                passdR=cms.bool(True),
                 Mu1PtCut=cms.double(20.0),
                 Mu2PtCut=cms.double(20.0),
-		passdR=cms.bool(True),
                 oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
 )
-process.Mu1Mu2PtRankMuonID=cms.EDFilter(
-  'HighestSecondHighestPtSelector',
-  muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
-  vtxTag= cms.InputTag('offlinePrimaryVertices'),
-  muon1ID=cms.string('medium'),
-  muon2ID=cms.string('medium')#tightNew is another option
-)
 
-process.Mu1Mu2EtaCut=cms.EDFilter('PTETACUT',
-                                 muonTag=cms.InputTag('Mu1Mu2PtRankMuonID'),
-                                 Eta=cms.double(2.4),
-                                 Pt=cms.double(0.0),
-                                 minNumObjsToPassFilter=cms.uint32(2)
-
-)
 process.Isolate=cms.EDFilter('CustomDimuonSelector',
-                                muonTag=cms.InputTag('Mu1Mu2EtaCut'),
+                                muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
                                 isoMax=cms.double(0.25),
                                 isoMin=cms.double(0.0),
                                 baseMuonTag=cms.InputTag('muons'),
@@ -475,29 +466,25 @@ process.Mu1Mu2Analyzer=cms.EDAnalyzer(
   Mu2PtBins=cms.vdouble(x for x in range(0, 200)),
   invMassBins=cms.vdouble(x for x in range(60, 120)),
   MC=cms.bool(False),
+  fp=cms.FileInPath("GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/data/pileupWeightForEraC.root"),
   PUTag=cms.InputTag("addPileupInfo","","HLT"),
-  generator=cms.InputTag("generator","","SIM")
+  Generator=cms.InputTag("generator","","SIM")
 )
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
         #process.TriggerAnalyzer0*
         process.HLTEle*
-        process.hTozzTo4leptonsMuonCalibrator*
-        process.MuonIWant*
+        #process.hTozzTo4leptonsMuonCalibrator*
+        process.PreMuons*
+        process.AllPreMuonsID*
         process.HighestPtAndMuonSignDRSelector*
-        process.Mu1Mu2PtRankMuonID*
-        process.Mu1Mu2EtaCut*
         process.Isolate*
         process.MassCut*
         process.Mu1Mu2Analyzer
-
 )
 
+
 process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector
-                                           #process.PFTau*
-                                           #process.pfBTagging*
-					   #process.muHadTauSelector*
-					   #process.MassCut
 )
 
 

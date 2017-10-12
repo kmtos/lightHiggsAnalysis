@@ -110,70 +110,110 @@ HighestPtAndMuonSignDRSelector::~HighestPtAndMuonSignDRSelector()
 bool
 HighestPtAndMuonSignDRSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   bool LargerThan0=true;
    using namespace edm;
    using namespace std;
    edm::Handle<reco::MuonRefVector> pMuons;
    iEvent.getByToken(muonTag_, pMuons); 
 
    if( (pMuons->size()) <= 1)
-     LargerThan0=false;
-   else
-   {
-     double max=0.0;
-     reco::MuonRef maxMuon;
-     reco::MuonRef OppositeSignSmallDRMuon;
-     for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
-     {
-       if( ((*iMuon)->pt()) > max)
-       {
-         max=(*iMuon)->pt();
-         maxMuon=(*iMuon);
-       }
-       else
-         continue;
-     }
-     //cout<<"maxMuonPt="<<maxMuon->pt()<<std::endl;
-     std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
-     muonColl->push_back(maxMuon);
+     return 0;
+   std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
 
-     for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
+   double max_=0.0;
+   reco::MuonRef maxMuon;
+   
+   reco::MuonRef secondMuon;
+   int count=0;
+   for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
+   {
+     count+=1;
+     if( ((*iMuon)->pt()) > max_)
      {
-       //cout<<"(*iMuon)->pt() ="<<(*iMuon)->pt()<<"; deltaR(**iMuon, *maxMuon)="<<deltaR(**iMuon, *maxMuon)<<"; sign ="<<((*iMuon)->pdgId() == (1)*((maxMuon)->pdgId()))<<std::endl;
-       if ( ((*iMuon)->pt() < (maxMuon->pt())) && ( (passdR_ && deltaR(**iMuon, *maxMuon) < Cut_) 
-           || (!passdR_ && deltaR(**iMuon, *maxMuon) > Cut_) || (Cut_==-1) ) && ((*iMuon)->pt() > Mu2PtCut_) && (maxMuon->pt() > Mu1PtCut_) )
-       {
-         if ( (oppositeSign_ && (*iMuon)->pdgId() == (-1)*((maxMuon)->pdgId()) ) || (!oppositeSign_ && (*iMuon)->pdgId()==(maxMuon)->pdgId() ) )
-         {
-           //cout<<"This one passed"<<std::endl;
-           double deltaR=0.0;
-           OppositeSignSmallDRMuon=(*iMuon);
-           //cout<<"OppositeSignMuonPt="<<OppositeSignSmallDRMuon->pt()<<std::endl;
-           muonColl->push_back(OppositeSignSmallDRMuon);
-           deltaR=reco::deltaR(*maxMuon, *OppositeSignSmallDRMuon);
-           histos1D_["deltaR"]->Fill(deltaR);
-           histos1D_["pt"]->Fill((*iMuon)->pt());
-         }//if sign requirement
-       }//if pt and dR requirement
-       else 
-  	  continue;
-     }//for iMuon
-     if(OppositeSignSmallDRMuon.isNull())
+       max_=(*iMuon)->pt();
+       maxMuon=(*iMuon);
+     }
+   }
+   muonColl->push_back(maxMuon);
+    
+   //Below is selecting highest pt muons's opposite sign partner. So that's only one pair.
+   int CountSecondMuon=0;
+   reco::MuonRef tmpSecondMuon; 
+   for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
+   {
+     //cout<<"(*iMuon)->pt() ="<<(*iMuon)->pt()<<"; deltaR(**iMuon, *maxMuon)="<<deltaR(**iMuon, *maxMuon)<<"; sign ="<<((*iMuon)->pdgId() == (1)*((maxMuon)->pdgId()))<<std::endl;
+     bool PtRequireMet=false;
+     bool dRRequireMet=false;
+     bool signRequireMet=false;
+     PtRequireMet=(*iMuon)->pt()<(maxMuon->pt()) && (*iMuon)->pt()> Mu2PtCut_ && (maxMuon->pt()>Mu1PtCut_);
+     dRRequireMet=(passdR_ && deltaR(**iMuon, *maxMuon)< Cut_) || (!passdR_ && deltaR(**iMuon, *maxMuon)> Cut_) || Cut_==-1;
+     signRequireMet=(oppositeSign_ && ((*iMuon)->pdgId()==(-1)*(maxMuon->pdgId()))) || (!oppositeSign_ && ((*iMuon)->pdgId()==maxMuon->pdgId()));
+     if (PtRequireMet && dRRequireMet && signRequireMet)      
      {
-       LargerThan0=0; 
-       return LargerThan0;
-     }//if
-     iEvent.put(muonColl);
-   }//else
-   return LargerThan0;
+       CountSecondMuon+=1; 
+       if(CountSecondMuon==1){
+         secondMuon=(*iMuon);
+         continue;
+       }
+       tmpSecondMuon=(*iMuon);
+       if(tmpSecondMuon->pt()> secondMuon->pt()){
+         secondMuon=tmpSecondMuon;
+
+       }
+     }//if pt, dR, sign requirement
+   }//for iMuon
+  
+   if(secondMuon.isNull())
+   {
+     return 0;
+   }//if
+   muonColl->push_back(secondMuon);
+
+   //Start Debugging 
+   std::cout<<"Count of All muons pass medium ID="<<count<< std::endl;
+   cout<<"maxMuonPt="<<maxMuon->pt()<<std::endl;
+   //Below is selecting all partners.
+   double invMassMostClose=0.0;
+   for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end()-1; ++iMuon){
+     for(reco::MuonRefVector::const_iterator iMuon2=iMuon+1; iMuon2!=pMuons->end(); ++iMuon2){
+       double tmpInvMass=((*iMuon)->p4()+(*iMuon2)->p4()).M();
+       if(fabs(tmpInvMass-92.0)<fabs((invMassMostClose-92.0))){
+         invMassMostClose=tmpInvMass;
+       }
+     }
+   }
+   for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end()-1; ++iMuon){
+     for(reco::MuonRefVector::const_iterator iMuon2=iMuon+1; iMuon2!=pMuons->end(); ++iMuon2){
+       double invMass=0;
+       bool containMaxPtMuon=false;
+       bool containSecondMaxPtMuon=false;
+       bool signRequireMet=false;
+       signRequireMet=(oppositeSign_ && ((*iMuon)->pdgId()==(-1)*((*iMuon2)->pdgId()))) || (!oppositeSign_ && ((*iMuon)->pdgId()==(*iMuon2)->pdgId()));
+       if( !signRequireMet){
+         continue;
+       }
+       invMass=((*iMuon)->p4()+(*iMuon2)->p4()).M();
+       std::cout<<invMass<<std::endl;
+       if(fabs( (*iMuon)->pt()-(maxMuon)->pt())<1e-6  ||  (fabs((maxMuon)->pt()-(*iMuon2)->pt())<1e-6)){
+         containMaxPtMuon=true;
+       }
+       if(fabs((*iMuon)->pt()-(secondMuon)->pt())<1e-6 || (fabs((secondMuon)->pt()-(*iMuon2)->pt())<1e-6)){
+         containSecondMaxPtMuon=true;
+       }
+       std::cout<<"containMaxPtMuon="<<containMaxPtMuon<<std::endl;
+       std::cout<<"containSecondMaxPtMuon="<<containSecondMaxPtMuon<<std::endl;
+       if ((!containMaxPtMuon|| !containSecondMaxPtMuon )&& fabs(invMass-invMassMostClose)<1e-6 ){
+         std::cout<<"PairThatWeMissedFound!"<<std::endl;
+       }
+     }
+   }
+   iEvent.put(muonColl);
+   return true;
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
 HighestPtAndMuonSignDRSelector::beginJob()
 {
   edm::Service<TFileService> fileService;
-  histos1D_["deltaR"]=fileService->make<TH1D>("deltaR of trigger muon and nearest Mu1 or Mu2","deltaR of trigger muon and nearest Mu1 or Mu2", 10, 0.0, 5.0);
-  histos1D_["pt"]=fileService->make<TH1D>("pt of fake Mu2", "pt of fake Mu2", 10, 0, 100.0);
 
 }
 

@@ -137,8 +137,9 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    TFile *_filePU;
    std::string FullFilePath = _fp.fullPath();
    _filePU= TFile::Open(FullFilePath.c_str());
-   TH1D *puweight = (TH1D*)_filePU->Get("puweight");
+   TH1D *puweight = (TH1D*)_filePU->Get("pileup_scale");
    float num_PU_vertices = -1;
+   //int test=0;
    if (MC_ ) {
 
       if(pPU.isValid()){
@@ -148,12 +149,16 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (cand->getBunchCrossing() == 0)
             { 
                num_PU_vertices=cand->getTrueNumInteractions();
+	       //test=cand->getPU_NumInteractions();
                count_pu++;
+	       break;
             }
 	    //num_PU_vertices=cand->getPU_NumInteractions(); in-time,out-of-time pileup
 	    //BX=cand->getBunchCrossing();
          }
          //cout<<"count"<<count_pu<<std::endl;
+	 //cout<<"PU_NumInteractions"<<test<<std::endl;
+	 //cout<<"NumVertices"<<num_PU_vertices<<std::endl;
       }
       histos1D_["NumVertices"]->Fill(num_PU_vertices);
     
@@ -170,6 +175,7 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
          EventWeight = gen_ev_info->weight();
       }
+      //cout<<"EventWeight=="<<EventWeight<<std::endl;
  
    }
 

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    temp/PTETACUT
-// Class:      PTETACUT
+// Package:    temp/MuonsID
+// Class:      MuonsID
 // 
-/**\class PTETACUT PTETACUT.cc temp/PTETACUT/plugins/PTETACUT.cc
+/**\class MuonsID MuonsID.cc temp/MuonsID/plugins/MuonsID.cc
 
  Description: [one line class summary]
 
@@ -35,15 +35,18 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "Tools/Common/interface/Common.h"
 //
 //
 // class declaration
 //
 
-class PTETACUT : public edm::EDFilter {
+class MuonsID : public edm::EDFilter {
    public:
-      explicit PTETACUT(const edm::ParameterSet&);
-      ~PTETACUT();
+      explicit MuonsID(const edm::ParameterSet&);
+      ~MuonsID();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -58,10 +61,9 @@ class PTETACUT : public edm::EDFilter {
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
- edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon> > > muonTag_;
- unsigned int minNumObjsToPassFilter_;
- double Eta_;
- double Pt_;
+edm::EDGetTokenT<reco::MuonRefVector> muonTag_; 
+edm::EDGetTokenT<reco::VertexCollection> vtxTag_;
+std::string muonID_;
 };
 
 //
@@ -75,19 +77,17 @@ class PTETACUT : public edm::EDFilter {
 //
 // constructors and destructor
 //
-PTETACUT::PTETACUT(const edm::ParameterSet& iConfig):
- muonTag_(consumes<edm::RefVector<std::vector<reco::Muon> > >(iConfig.getParameter<edm::InputTag>("muonTag"))),
- minNumObjsToPassFilter_(iConfig.getParameter<unsigned int>("minNumObjsToPassFilter")),
- Eta_(iConfig.getParameter<double>("Eta")),
- Pt_(iConfig.getParameter<double>("Pt"))
+MuonsID::MuonsID(const edm::ParameterSet& iConfig):
+  muonTag_(consumes<reco::MuonRefVector>(iConfig.getParameter<edm::InputTag>("muonTag"))),
+  vtxTag_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vtxTag"))),
+  muonID_(iConfig.getParameter<std::string>("muonID"))
 {
-
    //now do what ever initialization is needed
    produces<reco::MuonRefVector>();
 }
 
 
-PTETACUT::~PTETACUT()
+MuonsID::~MuonsID()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -102,45 +102,66 @@ PTETACUT::~PTETACUT()
 
 // ------------ method called on each new Event  ------------
 bool
-PTETACUT::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  unsigned int nPassingMuons=0;
-  edm::Handle<edm::RefVector<std::vector<reco::Muon> > > recoObjs;
-  iEvent.getByToken(muonTag_, recoObjs);
-  std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
-  for (typename edm::RefVector<std::vector<reco::Muon> >::const_iterator iRecoObj =
-       recoObjs->begin(); iRecoObj != recoObjs->end();
-       ++iRecoObj) 
-  {
-    if((fabs((*iRecoObj)->eta())<Eta_ ||(Eta_==-1))&& (*iRecoObj)->pt()>Pt_)
-    {
-      muonColl->push_back(*iRecoObj);
-      nPassingMuons++;
-    }
-  }
-  
-  iEvent.put(muonColl);
+   using namespace edm;
+   int CountMuon=0;
 
-  return (nPassingMuons >= minNumObjsToPassFilter_);
+   edm::Handle<reco::MuonRefVector> pMuons;
+   iEvent.getByToken(muonTag_, pMuons);
+   edm::Handle<reco::VertexCollection> pVertices;
+   iEvent.getByToken(vtxTag_, pVertices);
+   reco::Vertex* pPV = Common::getPrimaryVertex(pVertices); 
+   math::XYZPoint pVertex(0., 0., 0.);
+   if(pPV != NULL){
+     pVertex=math::XYZPoint(pPV->position().x(), pPV->position().y(), pPV->position().z());
+   }
+   std::auto_ptr<reco::MuonRefVector> muonColl(new reco::MuonRefVector);
+   if((pMuons->size())<1)
+     return 0;
+   if(muonID_=="medium")
+   {
+     for(reco::MuonRefVector::const_iterator iMuon=pMuons->begin();
+         iMuon!=pMuons->end();++iMuon)
+     {
+       if (!((*iMuon)->muonBestTrack().isAvailable()) ){
+             continue;
+       }
+       double dxy=(*iMuon)->muonBestTrack()->dxy(pVertex);
+       double dz=(*iMuon)->muonBestTrack()->dz(pVertex);
+       if (dxy > 0.5 || dz > 1.0){
+         continue;
+       }
+       if(muon::isLooseMuon(**iMuon)){
+         CountMuon+=1;
+         muonColl->push_back(*iMuon);
+       }
+     }
+   }
+   else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon1 ID.\n";
+
+   if(CountMuon>=2){
+     iEvent.put(muonColl);
+     return true;
+   }
+   return false;
 }
-   
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-PTETACUT::beginJob()
+MuonsID::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-PTETACUT::endJob() {
+MuonsID::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-PTETACUT::beginRun(edm::Run const&, edm::EventSetup const&)
+MuonsID::beginRun(edm::Run const&, edm::EventSetup const&)
 { 
 }
 */
@@ -148,7 +169,7 @@ PTETACUT::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-PTETACUT::endRun(edm::Run const&, edm::EventSetup const&)
+MuonsID::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -156,7 +177,7 @@ PTETACUT::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-PTETACUT::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+MuonsID::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -164,14 +185,14 @@ PTETACUT::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup cons
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-PTETACUT::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+MuonsID::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-PTETACUT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+MuonsID::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -179,4 +200,4 @@ PTETACUT::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   descriptions.addDefault(desc);
 }
 //define this as a plug-in
-DEFINE_FWK_MODULE(PTETACUT);
+DEFINE_FWK_MODULE(MuonsID);
