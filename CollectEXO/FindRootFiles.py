@@ -5,7 +5,7 @@ import os
 import re
 def getFileList(inDir, inputName):
     tempfile = open('tmpFile.txt','w')
-    cmd_all='find ' + inDir + ' -maxdepth 2 -mindepth 2 -name *_ZKamu3*' 
+    cmd_all='find ' + inDir + ' -maxdepth 2 -mindepth 2 -name *Doub' 
     print cmd_all
     process_all=subprocess.Popen(cmd_all.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     tempfile.write(process_all.communicate()[0])
@@ -33,7 +33,7 @@ def getFileList(inDir, inputName):
         
 def getFileInOneFolderList(inDir, inputName):
     tempfile = open(inputName,'w')
-    cmd = 'find ' + inDir + ' -name *selection*.root'
+    cmd = 'find ' + inDir + ' -name *TFile*.root'
     print cmd
     process = subprocess.Popen(cmd.split(), shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     tempfile.write(process.communicate()[0])

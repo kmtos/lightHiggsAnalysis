@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from subprocess import *
 import FWCore.Utilities.FileUtils as FileUtils
-mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/test.txt')
+mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/SignalH125a05.txt')
 process = cms.Process("SKIM")
 #Debug utils
 #process.ProfilerService = cms.Service (
@@ -261,6 +261,14 @@ process.AllPreMuonsID=cms.EDFilter(
   vtxTag= cms.InputTag('offlinePrimaryVertices'),
   muonID=cms.string('medium')
 )
+process.Isolate=cms.EDFilter('CustomDimuonSelector',
+                                muonTag=cms.InputTag('AllPreMuonsID'),
+                                isoMax=cms.double(0.25),
+                                isoMin=cms.double(0.0),
+                                baseMuonTag=cms.InputTag('muons'),
+                                particleFlow=cms.InputTag('particleFlow'),
+                                minNumObjsToPassFilter=cms.uint32(2)
+)
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
                 muonTag=cms.InputTag('AllPreMuonsID'),
@@ -269,15 +277,6 @@ process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 Mu1PtCut=cms.double(20.0),
                 Mu2PtCut=cms.double(20.0),
                 oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
-)
-
-process.Isolate=cms.EDFilter('CustomDimuonSelector',
-                                muonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
-                                isoMax=cms.double(0.25),
-                                isoMin=cms.double(0.0),
-                                baseMuonTag=cms.InputTag('muons'),
-                                particleFlow=cms.InputTag('particleFlow'),
-                                minNumObjsToPassFilter=cms.uint32(2)
 )
 process.NonIsolate=cms.EDFilter('CustomDimuonSelector',
 				muonTag=cms.InputTag('Mu1Mu2EtaCut'),
@@ -456,20 +455,22 @@ process.muHadNonIsoTauSelector = cms.EDFilter(
     outFileName=cms.string('muHadNoIsoTauSelector.root')
 )
 process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
-                                    Mu1Mu2=cms.InputTag('Isolate'),
-                                    minMass=cms.double(60.0),
-                                    maxMass=cms.double(120.0)
+                                    Mu1Mu2=cms.InputTag('HighestPtAndMuonSignDRSelector'),
+                                    minMass=cms.double(16.0),
+                                    maxMass=cms.double(22.0)
 )
 process.Mu1Mu2Analyzer=cms.EDAnalyzer(
   'Mu1Mu2Analyzer',
   Mu1Mu2=cms.InputTag("MassCut",'','SKIM'),
   Mu2PtBins=cms.vdouble(x for x in range(0, 200)),
-  invMassBins=cms.vdouble(x for x in range(60, 120)),
+  invMassBins=cms.vdouble(x*0.01 for x in range(1600, 2200)),
   MC=cms.bool(False),
+  pfMet=cms.InputTag("pfMet","","RECO"),
   fp=cms.FileInPath("GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/data/pileupWeightForEraC.root"),
   PUTag=cms.InputTag("addPileupInfo","","HLT"),
   Generator=cms.InputTag("generator","","SIM")
 )
+process.GetRunNumber = cms.EDAnalyzer('GetRunNumber')
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
         #process.TriggerAnalyzer0*
@@ -478,9 +479,9 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.PreMuons*
         process.AllPreMuonsID*
         process.HighestPtAndMuonSignDRSelector*
-        process.Isolate*
         process.MassCut*
-        process.Mu1Mu2Analyzer
+        process.Mu1Mu2Analyzer*
+        process.GetRunNumber
 )
 
 

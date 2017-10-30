@@ -132,7 +132,9 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if (dxy > 0.5 || dz > 1.0){
          continue;
        }
-       if(muon::isLooseMuon(**iMuon)){
+       reco::MuonPFIsolation iso = (*iMuon)->pfIsolationR04(); 
+       double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt))/(*iMuon)->pt();
+       if(muon::isLooseMuon(**iMuon) && reliso<0.25){
          CountMuon+=1;
          muonColl->push_back(*iMuon);
        }
