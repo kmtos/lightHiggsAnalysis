@@ -437,6 +437,55 @@ Common::getRecoTaus(const edm::Handle<reco::PFTauRefVector>& pTaus,
   return taus;
 }
 
+std::vector<pat::TauRef>
+Common::getPATTaus(const edm::Handle<pat::TauCollection>& pTaus,
+                    const std::vector<std::string> vecTauDiscriminators,
+                    const std::string tauHadIso, const double pTMin,
+                    const double etaMax, const bool passIso, const double isoMax)
+{
+  std::vector<pat::TauRef> taus;
+  int tau_id = 0;
+  for (pat::TauCollection::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); ++iTau, ++tau_id) {
+    pat::TauRef tauRef(pTaus, tau_id);
+    bool passTauDiscriminators = true;
+    for (unsigned int i = 0; i < vecTauDiscriminators.size(); i++){
+      if ( iTau->tauID(vecTauDiscriminators[i]) != 1) passTauDiscriminators = false;
+    }//for
+    if (((passIso && passTauDiscriminators) || (!passIso && !passTauDiscriminators)) &&
+        ((etaMax == -1.0) || (fabs(iTau->eta()) < etaMax)) &&
+        ((pTMin == -1.0) || (iTau->pt() > pTMin)) &&
+        ((isoMax == -1.0) || (iTau->tauID(tauHadIso) < isoMax))) {
+      taus.push_back(tauRef);
+    }
+  }
+  return taus;
+}
+
+std::vector<pat::TauRef>
+Common::getPATTaus(const edm::Handle<pat::TauCollection>& pTaus,
+                    const edm::Handle<pat::TauCollection>& pBaseTaus,
+                    const std::vector<std::string> vecTauDiscriminators,
+                    const std::string tauHadIso, const double pTMin,
+                    const double etaMax, const bool passIso, const double isoMax)
+{
+  std::vector<pat::TauRef> taus;
+  int tau_id = 0;
+  for (pat::TauCollection::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); ++iTau, ++tau_id) {
+    pat::TauRef tauRef(pBaseTaus, tau_id);
+    bool passTauDiscriminators = true;
+    for (unsigned int i = 0; i < vecTauDiscriminators.size(); i++){
+      if ( iTau->tauID(vecTauDiscriminators[i]) != 1) passTauDiscriminators = false;
+    } //for
+    if (((passIso && passTauDiscriminators) || (!passIso && !passTauDiscriminators)) &&
+        ((etaMax == -1.0) || (fabs((iTau)->eta()) < etaMax)) &&
+        ((pTMin == -1.0) || ((iTau)->pt() > pTMin)) &&
+        ((isoMax == -1.0) || (iTau->tauID(tauHadIso) < isoMax))) {
+      taus.push_back(tauRef);
+    }
+  }
+  return taus;
+}
+
 std::vector<reco::PhotonRef> 
 Common::getRecoPhotons(const edm::Handle<reco::PhotonCollection>& pPhotons, 
 		       const edm::Handle<reco::BeamSpot>& pBeamspot, 

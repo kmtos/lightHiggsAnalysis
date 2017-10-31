@@ -9,6 +9,8 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -209,7 +211,22 @@ class Common {
 		const std::vector<edm::Handle<reco::PFTauDiscriminator> >&, 
 		const edm::Handle<reco::PFTauDiscriminator>&, const double, const double, 
 		const bool, const double);
-  
+ 
+  //fill STL container with taus passing specified discriminators in specified eta range
+  static std::vector<pat::TauRef>
+    getPATTaus(const edm::Handle<pat::TauCollection>&,
+                const std::vector<std::string>,
+                const std::string, const double, const double,
+                const bool, const double);
+
+  //fill STL container with taus passing specified discriminators in specified eta range
+  static std::vector<pat::TauRef>
+    getPATTaus(const edm::Handle<pat::TauCollection>&,
+                const edm::Handle<pat::TauCollection>&,
+                const std::vector<std::string>,
+                const std::string, const double, const double,
+                const bool, const double);
+ 
   //fill STL container with photons passing specified cuts in specified eta range
   static std::vector<reco::PhotonRef> 
     getRecoPhotons(const edm::Handle<reco::PhotonCollection>&, 
