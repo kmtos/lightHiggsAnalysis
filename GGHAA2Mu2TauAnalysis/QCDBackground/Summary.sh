@@ -16,9 +16,9 @@ do
     file="$i"$afterfix
     file2="$i"$afterfix2
     echo $file2
-    sed "s/CopiedFileName/$i/g" "test_skimmed.py" > $file
+    sed "s/CopiedFileName/$i/g" "analyzer_template.py" > $file
     sed "s/Copy/$i/g" "lxplusbatchscript.sh"> $file2
-    bsub -q 1nd -J $i < $file2
+    #bsub -q 1nd -J $i < $file2
 done
 
 

@@ -129,9 +129,7 @@ bool CustomDimuonSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
 
   std::vector<reco::MuonRef> muons;
-  muons = pMuons.isValid() ?
-    Common::getIsolatedRecoMuons(pMuons, pBaseMuons, pPFCandidates, isoMax_, isoMin_) :
-    Common::getIsolatedRecoMuons(pBaseMuons, pPFCandidates, isoMax_, isoMin_);
+  muons = Common::getIsolatedRecoMuons(pMuons, pBaseMuons, pPFCandidates, isoMax_, isoMin_); 
 
   //fill output collection
   unsigned int nPassingMuons = 0;

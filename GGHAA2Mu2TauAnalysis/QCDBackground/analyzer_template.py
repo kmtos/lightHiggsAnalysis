@@ -29,6 +29,17 @@ process.load("Configuration.Geometry.GeometryRecoDB_cff")
 process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 #process.load("RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi")
 process.load('Tools/CleanJets/cleanjets_cfi')
+
+
+process.Mu1Mu2Analyzer=cms.EDAnalyzer(
+  'Mu1Mu2Analyzer',
+  Mu1Mu2=cms.InputTag("MassCut",'','SKIM'),
+  Mu2PtBins=cms.vdouble(0.0,100.0,200.0,300.0,400.0),
+  invMassBins=cms.vdouble(0.0,60.0,70.0, 80.0, 90.0, 100.0, 110.0, 120.0),
+  MC=cms.bool(False),
+  PUTag=cms.InputTag("addPileupInfo","","HLT"),
+  generator=cms.InputTag("generator","","SIM")
+)
 process.muHadNonIsoTauSelector=cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     tauTag=cms.InputTag('muHadTauSelector','','SKIM'),
@@ -88,7 +99,7 @@ process.ak4PFchsCorrectedJets   = cms.EDProducer('CorrectedPFJetProducer',
     )
 process.corrJetDistinctIsoTauSelector = cms.EDFilter(
     'CustomJetSelector',
-    tauTag = cms.InputTag('IsoBVetoFilter'),
+    tauTag = cms.InputTag('muHadIsoTauSelector'),
     overlapCandTag = cms.InputTag('Mu45Selector','','SKIM'),
     oldJetTag = cms.InputTag('ak4PFchsCorrectedJets'),
     jetMuonMapTag = cms.InputTag('CleanJets','muonValMap','SKIM'),
@@ -99,10 +110,12 @@ process.corrJetDistinctIsoTauSelector = cms.EDFilter(
     maxNumObjsToPassFilter = cms.int32(-1)
     )
 process.corrJetDistinctNonIsoTauSelector = process.corrJetDistinctIsoTauSelector.clone()
-process.corrJetDistinctNonIsoTauSelector.tauTag = cms.InputTag('NonIsoBVetoFilter')
+process.corrJetDistinctNonIsoTauSelector.tauTag = cms.InputTag('muHadNonIsoTauSelector')
+
 process.MuMuTauTauRecoAnalyzer=cms.EDAnalyzer(
         'MuMuTauTauRecoAnalyzer',
-        tauTag=cms.InputTag('corrJetDistinctNonIsoTauSelector'),
+        corrJetTag=cms.InputTag('corrJetDistinctNonIsoTauSelector'),
+        tauTag=cms.InputTag('muHadNonIsoTauSelector'),
         jetMuonMapTag=cms.InputTag('CleanJets','muonValMap','SKIM'),
         Mu1Mu2= cms.InputTag('Mu1Mu2EtaCut','','SKIM'),
         IsolatedMuon=cms.InputTag('Isolate','','SKIM'),
@@ -120,16 +133,11 @@ process.MuMuTauTauRecoAnalyzer=cms.EDAnalyzer(
 )
 #require event to fire IsoMu24_eta2p1
 process.tauAnalysisSequence = cms.Sequence(
-  process.muHadNonIsoTauSelector*
-  process.NonIsoBVetoFilter*
-  process.ak4PFCHSL1FastL2L3CorrectorChain*
-  process.ak4PFchsCorrectedJets*
-  process.corrJetDistinctNonIsoTauSelector*
-  process.MuMuTauTauRecoAnalyzer
+    process.Mu1Mu2Analyzer
 )
 
 process.TFileService = cms.Service("TFileService",
-    fileName =  cms.string('tes.root')
+    fileName =  cms.string('TFileCopiedFileName.root')
 )
 process.noSelectedOutput = cms.OutputModule(
     "PoolOutputModule",

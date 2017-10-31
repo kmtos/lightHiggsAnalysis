@@ -41,6 +41,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 using namespace std;
@@ -74,14 +75,13 @@ class Mu1Mu2Analyzer : public edm::EDAnalyzer{
       edm::EDGetTokenT<edm::RefVector<std::vector<reco::Muon>>> Mu1Mu2_;
       std::map<std::string, TH1D*> histos1D_;
       std::map<std::string, TH2D*> histos2D_;
+      edm::EDGetTokenT<std::vector<reco::PFMET>>  pfMETsTag_;
       std::vector<double> Mu2PtBins_;
       std::vector<double> invMassBins_;
       bool MC_;
+      edm::FileInPath _fp;
       edm::EDGetTokenT<std::vector<PileupSummaryInfo>> PUTag_;
       float EventWeight;
-      float summedWeights;
-      float NEvents;
-      float summedNormWeights;
       edm::EDGetTokenT<GenEventInfoProduct> generator_;
 };
 
@@ -100,9 +100,11 @@ Mu1Mu2Analyzer::Mu1Mu2Analyzer(const edm::ParameterSet& iConfig):
   Mu1Mu2_(consumes<edm::RefVector<std::vector<reco::Muon>>>(iConfig.getParameter<edm::InputTag>("Mu1Mu2"))),
   histos1D_(),
   histos2D_(),
+  pfMETsTag_  (consumes<std::vector<reco::PFMET>>(iConfig.getParameter<edm::InputTag>("pfMet"))), 
   Mu2PtBins_(iConfig.getParameter<std::vector<double> >("Mu2PtBins")),
   invMassBins_(iConfig.getParameter<std::vector<double>>("invMassBins")),
   MC_(iConfig.getParameter<bool>("MC")),
+  _fp(iConfig.getParameter<edm::FileInPath>("fp")),
   PUTag_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("PUTag"))),
   generator_(consumes<GenEventInfoProduct>(iConfig.existsAs<edm::InputTag>("Generator") ?
                                            iConfig.getParameter<edm::InputTag>("Generator"):
@@ -130,15 +132,20 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    edm::Handle<edm::RefVector<std::vector<reco::Muon>>> pMu1Mu2;
    iEvent.getByToken(Mu1Mu2_, pMu1Mu2);
+   
+   edm::Handle<std::vector<reco::PFMET>> pMets;
+   iEvent.getByToken( pfMETsTag_ ,pMets);
   
    edm::Handle<std::vector<PileupSummaryInfo> > pPU;
    if (MC_) iEvent.getByToken(PUTag_, pPU);
    //if MC do Pileup reweighting
    double pu_weight = 1.0; 
    TFile *_filePU;
-   _filePU= TFile::Open("/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/GGHAA2Mu2TauAnalysis/AMuTriggerAnalyzer/plugins/pileup_MC_80x_271036-276811_69200.root");
-   TH1D *puweight = (TH1D*)_filePU->Get("puweight");
+   std::string FullFilePath = _fp.fullPath();
+   _filePU= TFile::Open(FullFilePath.c_str());
+   TH1D *puweight = (TH1D*)_filePU->Get("pileup_scale");
    float num_PU_vertices = -1;
+   //int test=0;
    if (MC_ ) {
 
       if(pPU.isValid()){
@@ -148,12 +155,16 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (cand->getBunchCrossing() == 0)
             { 
                num_PU_vertices=cand->getTrueNumInteractions();
+	       //test=cand->getPU_NumInteractions();
                count_pu++;
+	       break;
             }
 	    //num_PU_vertices=cand->getPU_NumInteractions(); in-time,out-of-time pileup
 	    //BX=cand->getBunchCrossing();
          }
          //cout<<"count"<<count_pu<<std::endl;
+	 //cout<<"PU_NumInteractions"<<test<<std::endl;
+	 //cout<<"NumVertices"<<num_PU_vertices<<std::endl;
       }
       histos1D_["NumVertices"]->Fill(num_PU_vertices);
     
@@ -170,10 +181,8 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       {
          EventWeight = gen_ev_info->weight();
       }
-      summedWeights+=EventWeight;
-      NEvents++;
-      cout<<"EventWeight="<<EventWeight<<std::endl;
-    
+      //cout<<"EventWeight=="<<EventWeight<<std::endl;
+ 
    }
 
    _filePU->Close();
@@ -194,17 +203,47 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    } 
    double Mu2Pt=0;
    double dR=0.0;
+   double dRMetMu1=0.0;
    double etaOfMu2=0;
+   double etaOfMu1=0;
    dR=deltaR(*LowestPtMu1Mu2, *HighestPtMu1Mu2);
    Mu2Pt=LowestPtMu1Mu2->pt();
    etaOfMu2=LowestPtMu1Mu2->eta();
+   etaOfMu1=HighestPtMu1Mu2->eta();
    histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
    histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
-   histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
-   histos1D_["Mu2Pt"]->Fill(Mu2Pt);
-   histos1D_["dRMu1Mu2"]->Fill(dR);
-   histos1D_["dRMu1Mu2Wider"]->Fill(dR);
-   histos1D_["etaOfMu2"]->Fill(etaOfMu2);
+   double SumMet=0.0;
+   int countMet=0;
+   reco::PFMET Met=(*pMets)[0];
+   dRMetMu1=deltaR(*HighestPtMu1Mu2,Met);
+   if(MC_){
+      histos1D_["dRMetMu1"]->Fill(dRMetMu1, pu_weight*EventWeight);
+      histos1D_["MetPt"]->Fill(Met.pt(), pu_weight*EventWeight);
+      histos1D_["Mu1Mu2Pt"]->Fill(HighestPtMu1Mu2->pt(), pu_weight*EventWeight);
+      histos1D_["Mu1Mu2Pt"]->Fill(LowestPtMu1Mu2->pt(), pu_weight*EventWeight);
+      histos1D_["Mu1Mu2Eta"]->Fill(HighestPtMu1Mu2->eta(), pu_weight*EventWeight);
+      histos1D_["Mu1Mu2Eta"]->Fill(LowestPtMu1Mu2->pt(), pu_weight*EventWeight);
+      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt(),pu_weight*EventWeight);
+      histos1D_["Mu2Pt"]->Fill(Mu2Pt,pu_weight*EventWeight);
+      histos1D_["dRMu1Mu2"]->Fill(dR,pu_weight*EventWeight);
+      histos1D_["dRMu1Mu2Wider"]->Fill(dR,pu_weight*EventWeight);
+      histos1D_["etaOfMu1"]->Fill(etaOfMu1,pu_weight*EventWeight);
+      histos1D_["etaOfMu2"]->Fill(etaOfMu2,pu_weight*EventWeight);
+   }
+   else{
+      histos1D_["dRMetMu1"]->Fill(dRMetMu1);
+      histos1D_["MetPt"]->Fill(Met.pt());
+      histos1D_["Mu1Mu2Pt"]->Fill(HighestPtMu1Mu2->pt());
+      histos1D_["Mu1Mu2Pt"]->Fill(LowestPtMu1Mu2->pt());
+      histos1D_["Mu1Mu2Eta"]->Fill(HighestPtMu1Mu2->eta());
+      histos1D_["Mu1Mu2Eta"]->Fill(LowestPtMu1Mu2->eta());
+      histos1D_["Mu1Pt"]->Fill(HighestPtMu1Mu2->pt());
+      histos1D_["Mu2Pt"]->Fill(Mu2Pt);
+      histos1D_["dRMu1Mu2"]->Fill(dR);
+      histos1D_["dRMu1Mu2Wider"]->Fill(dR);
+      histos1D_["etaOfMu1"]->Fill(etaOfMu1);
+      histos1D_["etaOfMu2"]->Fill(etaOfMu2);
+   }
    for(typename edm::RefVector<std::vector<reco::Muon>>::const_iterator iMu1Mu2=pMu1Mu2->begin(); iMu1Mu2!=pMu1Mu2->end();++iMu1Mu2)
    {
       Mu1Mu2Ptrs.push_back(const_cast<reco::Muon*>(&(**iMu1Mu2)));
@@ -226,19 +265,22 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 Mu1Mu2Analyzer::beginJob()
 {
-  summedWeights=0.0;
-  NEvents=0.0;
   edm::Service<TFileService> fileService;
   histos1D_["pt_reco"]=fileService->make<TH1D>("pt of reco muon","pt of Mu1 Mu2 (H750a09)",100, 0.0, 100);
+  histos1D_["dRMetMu1"]=fileService->make<TH1D>("dRMetMu1","dRMetMu1",100, 0.0, 5.0);
+  histos1D_["MetPt"]=fileService->make<TH1D>("MetPt","MetPt", 100, 0.0, 300.0);
   histos1D_["invMass"]=fileService->make<TH1D>("invMass of Mu1 Mu2","invMass of Mu1 Mu2 (H750a09)",invMassBins_.size()-1, &invMassBins_[0]);
-//  histos1D_["invMass"]->Sumw2();
+  histos1D_["invMass"]->Sumw2();
+  histos1D_["Mu1Mu2Pt"]=fileService->make<TH1D>("Mu1Mu2Pt","Mu1Mu2Pt", 100, 0, 300);
+  histos1D_["Mu1Mu2Eta"]=fileService->make<TH1D>("Mu1Mu2Eta","Mu1Mu2Eta", 100, -2.5, 2.5);
   histos2D_["Mu1PtMu2Pt"]=fileService->make<TH2D>("Mu1PtMu2Pt","Mu1Pt vs Mu2Pt", 100, 0, 500, 40, 0, 200);
   histos1D_["Mu2Pt"]=fileService->make<TH1D>("pt of Mu2", "Pt of RecoMu2",Mu2PtBins_.size()-1,&Mu2PtBins_[0]);
   histos1D_["Mu2Pt"]->Sumw2();
-  histos1D_["Mu1Pt"]=fileService->make<TH1D>("pt of Mu1", "pt of Mu1", 100, 0, 500);
-  histos1D_["dRMu1Mu2"]=fileService->make<TH1D>("dRMu1Mu2", "dRMu1Mu2", 50, 0, 5.0);
+  histos1D_["Mu1Pt"]=fileService->make<TH1D>("pt of Mu1", "pt of Mu1", 100, 0, 200);
+  histos1D_["dRMu1Mu2"]=fileService->make<TH1D>("dRMu1Mu2", "dRMu1Mu2", 50, 0, 2.0);
   histos1D_["dRMu1Mu2Wider"]=fileService->make<TH1D>("dRMu1Mu2Wider", "dRMu1Mu2Wider", 50, 0, 5.0);
   histos2D_["dRVsMu2Pt"]=fileService->make<TH2D>("dRVsMu2Pt", "dRVsMu2Pt", 50, 0, 5.0, 50, 0, 50.0);
+  histos1D_["etaOfMu1"]=fileService->make<TH1D>("Eta of Mu1", "Eta of Mu1", 100, -5.0, 5.0);
   histos1D_["etaOfMu2"]=fileService->make<TH1D>("Eta of Mu2", "Eta of Mu2", 100, -5.0, 5.0);
   histos1D_["NumVertices"]=fileService->make<TH1D>("NumVertices","NumVertices", 70, 0, 70);
 }
@@ -246,17 +288,8 @@ Mu1Mu2Analyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 Mu1Mu2Analyzer::endJob() 
-{ cout<<"NEvents="<<NEvents<<std::endl;
-  cout<<"summedWeights="<<summedWeights<<std::endl;
-  if(MC_)
-  {
-    float intLumi=5780.0;
-    float xsec=1921.8*3;
-    float sampleLumi=summedWeights/xsec;
-    histos1D_["invMass"]->Scale(intLumi/sampleLumi);
-  }
+{
 }
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

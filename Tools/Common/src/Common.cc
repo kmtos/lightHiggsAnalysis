@@ -829,17 +829,6 @@ Common::getIsolatedRecoMuons(const edm::Handle<reco::MuonCollection>& pMuons,
 			     const edm::Handle<reco::PFCandidateCollection> & pPFCandidates,
 		 	     const double isoMax, const double isoMin)
 {
-  reco::Muon HighestPtMu1Mu2;
-  reco::Muon LowestPtMu1Mu2;
-  if((*pMuons)[0].pt()> (*pMuons)[1].pt()){
-    HighestPtMu1Mu2=reco::Muon(((*pMuons)[0]));
-    LowestPtMu1Mu2=reco::Muon(((*pMuons)[1]));
-    }
-  else
-    {
-    HighestPtMu1Mu2=reco::Muon(((*pMuons)[1]));
-    LowestPtMu1Mu2=reco::Muon(((*pMuons)[0]));
-    }
   std::vector<reco::MuonRef> IsoMuons;
   for (reco::MuonCollection::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
        ++iMuon) {
@@ -858,17 +847,6 @@ Common::getIsolatedRecoMuons(const edm::Handle<reco::MuonRefVector>& pMuons,
                              const edm::Handle<reco::PFCandidateCollection> & pPFCandidates,
                              const double isoMax, const double isoMin)
 {
-  reco::MuonRef HighestPtMu1Mu2;
-  reco::MuonRef LowestPtMu1Mu2;
-  if((*pMuons)[0]->pt()> (*pMuons)[1]->pt()){
-    HighestPtMu1Mu2=reco::MuonRef(((*pMuons)[0]));
-    LowestPtMu1Mu2=reco::MuonRef(((*pMuons)[1]));
-    }
-  else
-    {
-    HighestPtMu1Mu2=reco::MuonRef(((*pMuons)[1]));
-    LowestPtMu1Mu2=reco::MuonRef(((*pMuons)[0]));
-    }
   std::vector<reco::MuonRef> IsoMuons;
   for (reco::MuonRefVector::const_iterator iMuon = pMuons->begin(); iMuon != pMuons->end();
        ++iMuon) {
