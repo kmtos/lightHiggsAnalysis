@@ -5,12 +5,12 @@ from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import *
 mylist=FileUtils.loadListFromFile('/afs/cern.ch/work/m/mshi/private/CMSSW_8_0_17/src/CollectEXO/DYHigh_raw.txt')
 process = cms.Process("SKIM")
 #Debug utils
-process.ProfilerService = cms.Service (
-      "ProfilerService",
-       firstEvent = cms.untracked.int32(2),
-       lastEvent = cms.untracked.int32(500),
-       paths = cms.untracked.vstring('schedule')
-)
+#process.ProfilerService = cms.Service (
+#      "ProfilerService",
+#       firstEvent = cms.untracked.int32(2),
+#       lastEvent = cms.untracked.int32(500),
+#       paths = cms.untracked.vstring('schedule')
+#)
 
 #process.SimpleMemoryCheck = cms.Service(
 #    "SimpleMemoryCheck",
@@ -229,28 +229,44 @@ process.btagging = cms.Sequence(
 process.TriggerAnalyzer0=cms.EDAnalyzer("TriggerAnalyzer")
 process.HLTEle =cms.EDFilter("HLTHighLevel",
      TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
-     HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"),
+     #HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" ),
      #HLTPaths = cms.vstring("HLT_Mu7p5_Track7_Upsilon_v*", "HLT_Mu7p5_Track3p5_Upsilon_v*","HLT_Mu7p5_Track2_Upsilon_v*", "HLT_Mu7p5_L2Mu2_Upsilon_v*","HLT_Dimuon8_Upsilon_Barrel_v*","HLT_Dimuon13_Upsilon_v*","HLT_Dimuon0_Upsilon_Muon_v*" ),
+     HLTPaths = cms.vstring("HLT_IsoMu24_v*","HLT_IsoTkMu24_v*"),
      eventSetupPathsKey = cms.string(''),
      andOr = cms.bool(True), #----- True = OR, False = AND between the HLTPaths
      throw = cms.bool(False) # throw exception on unknown path names
 )
-
 process.hTozzTo4leptonsMuonCalibrator = cms.EDProducer("HZZ4LeptonsMuonCalibrator",
     muonCollection = cms.InputTag("muons"),
-    identifier = cms.string("MC_80X_13TeV"),
+    identifier = cms.string("DATA_80X_13TeV"),
     isData         = cms.bool(False)
 )
+process.RandomNumberGeneratorService = cms.Service(
+    "RandomNumberGeneratorService",
+    RochesterCorr = cms.PSet(
+        initialSeed = cms.untracked.uint32(3),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+)
+
+process.RochesterCorr=cms.EDProducer("Rochester",
+    muonCollection = cms.InputTag("muons"),
+    identifier = cms.string("DATA_80X_13TeV"),
+    isData         = cms.bool(False),
+    initialSeed = cms.untracked.uint32(89),
+    engineName = cms.untracked.string('TRandom3')
+)
+
 MU_CUT=("pt>5.0 && abs(eta)<2.4")
 process.PreMuons = cms.EDFilter('MuonRefSelector',
-                                 src = cms.InputTag("muons"),
+                                 src = cms.InputTag("RochesterCorr","RochesterMu","SKIM"),
                                  cut = cms.string(MU_CUT),
                                  filter = cms.bool(True)
 )
 
 process.Mu45Selector = cms.EDFilter(
     'MuonTriggerObjectFilter',
-    recoObjTag = cms.InputTag('PreMuons'),
+    recoObjTag = cms.InputTag('MuonIWant'),
     genParticleTag = cms.InputTag('genParticles'),
     triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD", "", "HLT2"),
     triggerResultsTag = cms.untracked.InputTag("TriggerResults", "", "HLT2"),
@@ -487,7 +503,7 @@ process.MuMuSequenceSelector=cms.Sequence(
         #process.TriggerAnalyzer0*
         process.lumiTree*
         process.HLTEle*
-        #process.hTozzTo4leptonsMuonCalibrator*
+        process.RochesterCorr*
 	process.PreMuons*
         process.AllPreMuonsID*
         process.HighestPtAndMuonSignDRSelector*
