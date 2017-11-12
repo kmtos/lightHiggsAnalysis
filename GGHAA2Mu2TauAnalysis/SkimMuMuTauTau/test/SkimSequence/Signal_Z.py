@@ -247,7 +247,8 @@ process.RochesterCorr=cms.EDProducer("Rochester",
     identifier = cms.string("DATA_80X_13TeV"),
     isData         = cms.bool(True),
     initialSeed = cms.untracked.uint32(89),
-    engineName = cms.untracked.string('TRandom3')
+    engineName = cms.untracked.string('TRandom3'),
+    fp=cms.FileInPath("Rochester/rcdata.2016.v3/config.txt")
 )   
 MU_CUT=("pt>5.0 && abs(eta)<2.4")
 process.PreMuons = cms.EDFilter('MuonRefSelector',

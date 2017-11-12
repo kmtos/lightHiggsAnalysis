@@ -40,7 +40,7 @@ Rochester::Rochester(const edm::ParameterSet& pset) {
   muonLabel        = consumes<edm::View<reco::Muon> >(pset.getParameter<edm::InputTag>("muonCollection"));
   iName = "RochesterMu";
   produces<reco::MuonCollection>(iName); 
-  RochesterDir_=edm::FileInPath("Rochester/rcdata.2016.v3/config.txt");
+  RochesterDir_=pset.getParameter<edm::FileInPath>("fp");
   std::string rochCorrDataDirPath=RochesterDir_.fullPath();
   rochCorrDataDirPath.erase(rochCorrDataDirPath.length()-10);
   rc=RoccoR(rochCorrDataDirPath);
