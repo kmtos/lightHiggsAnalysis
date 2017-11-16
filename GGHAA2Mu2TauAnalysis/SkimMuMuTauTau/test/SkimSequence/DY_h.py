@@ -255,7 +255,7 @@ process.RochesterCorr=cms.EDProducer("Rochester",
     isData         = cms.bool(False),
     initialSeed = cms.untracked.uint32(89),
     engineName = cms.untracked.string('TRandom3'),
-    fp=cms.FileInPath("Rochester/rcdata.2016.v3/config.txt")
+    fp=cms.FileInPath("Rochester/RochesterSub/data/rcdata.2016.v3/config.txt")
 )
 
 MU_CUT=("pt>5.0 && abs(eta)<2.4")
