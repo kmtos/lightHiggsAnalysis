@@ -537,7 +537,7 @@ Common::getPATTaus(const edm::Handle<pat::TauCollection>& pTaus,
   for (pat::TauCollection::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); ++iTau) {
     bool passTauDiscriminators = true;
     for (unsigned int i = 0; i < vecTauDiscriminators.size(); i++){
-      if ( iTau->tauID(vecTauDiscriminators[i]) != 1) passTauDiscriminators = false;
+      if ( iTau->tauID(vecTauDiscriminators[i]) < .5) passTauDiscriminators = false;
     }//for
     if (((passIso && passTauDiscriminators) || (!passIso && !passTauDiscriminators)) &&
         ((etaMax == -1.0) || (fabs(iTau->eta()) < etaMax)) &&
@@ -560,7 +560,7 @@ Common::getPATTaus(const edm::Handle<pat::TauCollection>& pTaus,
   for (pat::TauCollection::const_iterator iTau = pTaus->begin(); iTau != pTaus->end(); ++iTau) {
     bool passTauDiscriminators = true;
     for (unsigned int i = 0; i < vecTauDiscriminators.size(); i++){
-      if ( iTau->tauID(vecTauDiscriminators[i]) != 1) passTauDiscriminators = false;
+      if ( iTau->tauID(vecTauDiscriminators[i]) < .5) passTauDiscriminators = false;
     } //for
     if (((passIso && passTauDiscriminators) || (!passIso && !passTauDiscriminators)) &&
         ((etaMax == -1.0) || (fabs((iTau)->eta()) < etaMax)) &&
