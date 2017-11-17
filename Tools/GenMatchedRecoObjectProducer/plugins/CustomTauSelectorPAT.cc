@@ -255,19 +255,19 @@ bool CustomTauSelectorPAT<T>::filter(edm::Event& iEvent, const edm::EventSetup& 
     //if tau doesn't overlap with overlap candidate (or no overlap checking requested)...
     if (reco::deltaR(*iTau, nearestMuon) > dR_) 
     {
+      double bestdR = 1000000000;
       for (edm::View<pat::Muon>::const_iterator iMu = pMuons->begin(); iMu != pMuons->end(); ++iMu)
       {
         double dR = reco::deltaR(*iTau, *iMu);
         TauHadAllMudR_->Fill(dR );
-        if (dR < diTaudR_)
-        {
-          TauHadTauMudR_->Fill(dR );
-          TauHadEta_->Fill(iTau->eta() );
-          TauPt_->Fill(iTau->pt());
-          tauColl->push_back(*iTau);
-          ++nPassingTaus;
-        }//if dR < diTaudR_
+        if (dR < diTaudR_ && dR < bestdR)
+          bestdR = dR;
       }//for iMu
+      TauHadTauMudR_->Fill(bestdR );
+      TauHadEta_->Fill(iTau->eta() );
+      TauPt_->Fill(iTau->pt());
+      tauColl->push_back(*iTau);
+      ++nPassingTaus;
     }//if pOverlapCands
   }
   iEvent.put(tauColl);
