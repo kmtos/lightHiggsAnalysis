@@ -212,8 +212,8 @@ Mu1Mu2Analyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    etaOfMu1=HighestPtMu1Mu2->eta();
    histos2D_["dRVsMu2Pt"]->Fill(dR, Mu2Pt); 
    histos2D_["Mu1PtMu2Pt"]->Fill(HighestPtMu1Mu2->pt(), Mu2Pt);
-   double SumMet=0.0;
-   int countMet=0;
+//   double SumMet=0.0;
+//   int countMet=0;
    reco::PFMET Met=(*pMets)[0];
    dRMetMu1=deltaR(*HighestPtMu1Mu2,Met);
    if(MC_){
