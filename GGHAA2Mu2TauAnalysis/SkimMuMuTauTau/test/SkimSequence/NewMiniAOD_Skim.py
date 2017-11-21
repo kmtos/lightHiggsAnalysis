@@ -153,7 +153,7 @@ process.Isolate=cms.EDFilter('CustomDimuonSelectorPAT',
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelectorPAT',
                 muonTag=cms.InputTag('AllPreMuonsID'),
-                dRCut=cms.double(-1),
+                dRCut=cms.double(1.5),
                 passdR=cms.bool(True),
                 Mu1PtCut=cms.double(20.0),
                 Mu2PtCut=cms.double(20.0),
@@ -239,9 +239,9 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.HighestPtAndMuonSignDRSelector*
         process.Mu3*
         process.Mu3ID*
-#        process.MassCut#*
-        process.muHadTauDMSelector*
-        process.muHadTauDMIsoSelector
+#        process.MassCut*
+        process.muHadTauDMSelector#*
+#        process.muHadTauDMIsoSelector
 )
 
 
