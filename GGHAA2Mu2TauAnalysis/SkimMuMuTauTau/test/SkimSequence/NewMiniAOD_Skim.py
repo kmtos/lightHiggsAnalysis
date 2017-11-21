@@ -121,7 +121,7 @@ process.RandomNumberGeneratorService = cms.Service(
     engineName = cms.untracked.string('TRandom3')
     ),
 )
-process.RochesterCorr=cms.EDProducer("RochesterPAT",
+process.RochesterCorr=cms.EDProducer("Rochester",
     muonCollection = cms.InputTag("slimmedMuons"),
     identifier = cms.string("DATA_80X_13TeV"),
     isData = cms.bool(False),
@@ -130,19 +130,19 @@ process.RochesterCorr=cms.EDProducer("RochesterPAT",
     fp=cms.FileInPath("Rochester/Rochester/data/rcdata.2016.v3/config.txt")
 )
 
-process.PreMuons = cms.EDFilter('PTETACUTPAT',
-            muonTag=cms.InputTag("RochesterCorr","RochesterMuPAT", "MINIAODSKIM"),
+process.PreMuons = cms.EDFilter('PTETACUT',
+            muonTag=cms.InputTag("RochesterCorr","RochesterMu", "MINIAODSKIM"),
             Eta=cms.double(2.4),
             Pt=cms.double(5.0),
             minNumObjsToPassFilter=cms.uint32(0)
 )
 
 process.AllPreMuonsID=cms.EDFilter(
-  'MuonsIDPAT',
+  'MuonsID',
   muonTag=cms.InputTag('PreMuons'),
   muonID=cms.string('medium')
 )
-process.Isolate=cms.EDFilter('CustomDimuonSelectorPAT',
+process.Isolate=cms.EDFilter('CustomDimuonSelector',
                                 muonTag=cms.InputTag('AllPreMuonsID'),
                                 isoMax=cms.double(0.25),
                                 isoMin=cms.double(0.0),
@@ -151,7 +151,7 @@ process.Isolate=cms.EDFilter('CustomDimuonSelectorPAT',
                                 minNumObjsToPassFilter=cms.uint32(2)
 )
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
-                'HighestPtAndMuonSignDRSelectorPAT',
+                'HighestPtAndMuonSignDRSelector',
                 muonTag=cms.InputTag('AllPreMuonsID'),
                 dRCut=cms.double(1.5),
                 passdR=cms.bool(True),
@@ -160,20 +160,20 @@ process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 oppositeSign = cms.bool(True) # False for SameSignDiMu, True regular
 )
 
-process.MassCut=cms.EDFilter('Mu1Mu2MassFilterPAT',
-                              Mu1Mu2=cms.InputTag('HighestPtAndMuonSignDRSelectorPAT'),
+process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
+                              Mu1Mu2=cms.InputTag('HighestPtAndMuonSignDRSelector'),
                               minMass=cms.double(81),
                               maxMass=cms.double(101)
 )
 
-process.Mu3=cms.EDFilter('VetoMuonPAT',
+process.Mu3=cms.EDFilter('VetoMuon',
   muonTag=cms.InputTag('PreMuons'),
   vetoMuonTag=cms.InputTag('HighestPtAndMuonSignDRSelector'),
   dRCut=cms.double(0.5),
   minNumObjsToPassFilter=cms.uint32(1)
 )
 
-process.Mu3ID = cms.EDFilter('CustomMuonSelectorPAT',
+process.Mu3ID = cms.EDFilter('CustomMuonSelector',
                                        baseMuonTag = cms.InputTag('slimmedMuons'),
                                        muonTag = cms.InputTag('Mu3'),
                                        vtxTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
@@ -190,7 +190,7 @@ process.Mu3ID = cms.EDFilter('CustomMuonSelectorPAT',
 #find taus in |eta| < 2.4 matched to muon-tagged cleaned jets
 #this will produce a ref to the cleaned tau collection
 process.muHadTauDMSelector = cms.EDFilter(
-    'CustomTauSepFromMuonSelectorPAT',
+    'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
     #overlapMuonTag1  = cms.InputTag('TriggerSelector'),
@@ -208,7 +208,7 @@ process.muHadTauDMSelector = cms.EDFilter(
     )
 
 process.muHadTauDMIsoSelector = cms.EDFilter(
-    'CustomTauSepFromMuonSelectorPAT',
+    'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
     #overlapMuonTag  = cms.InputTag('TriggerSelector'),
