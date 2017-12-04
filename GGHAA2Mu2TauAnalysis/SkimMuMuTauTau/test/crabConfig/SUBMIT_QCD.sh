@@ -42,19 +42,3 @@ crab submit crabConfig_QCD_800to1000.py  >> $FILENAME
 echo "" >> $FILENAME
 crab submit crabConfig_QCD_80to120.py  >> $FILENAME
 echo "" >> $FILENAME
-echo "QCD Done"
-
-crab submit crabConfig_TTBar.py  >> $FILENAME
-echo "" >> $FILENAME
-crab submit crabConfig_TTDiLep.py  >> $FILENAME
-echo "" >> $FILENAME
-crab submit crabConfig_TTJetsAmca.py  >> $FILENAME
-echo "" >> $FILENAME
-crab submit crabConfig_TTJetsMadG.py  >> $FILENAME
-echo "" >> $FILENAME
-crab submit crabConfig_TTSingLepT.py  >> $FILENAME
-echo "" >> $FILENAME
-crab submit crabConfig_TTSingLepTBar.py  >> $FILENAME
-echo "" >> $FILENAME
-echo "TT Done"
-

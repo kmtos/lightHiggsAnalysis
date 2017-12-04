@@ -174,8 +174,8 @@ process.TrigMuMatcher=cms.EDFilter(
 
 process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
                               Mu1Mu2=cms.InputTag('HighestPtAndMuonSignDRSelector'),
-                              minMass=cms.double(81),
-                              maxMass=cms.double(101)
+                              minMass=cms.double(7.5),
+                              maxMass=cms.double(12)
 )
 
 process.Mu3=cms.EDFilter('VetoMuon',
