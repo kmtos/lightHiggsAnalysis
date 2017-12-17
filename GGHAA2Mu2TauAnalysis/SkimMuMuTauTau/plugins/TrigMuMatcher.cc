@@ -175,16 +175,17 @@ TrigMuMatcher::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for (unsigned int num : corrTrigSpot) // Loop through the triggers we care about
     {
       const std::string& name = names.triggerName(num); // get name
-      if (TO.hasPathName(name, true) && !checkObjMatch) // If obj passes trigger we care about, and that an object didn't pass previous triggers in vector
+      if (TO.hasPathName(name, true) && !checkObjMatch) // If obj passes trigger we care about, and that object didn't pass previous triggers in vector
       {
         double matchedMuPt = -1, dRMatch = -1;
         int nMatches = 0;
         for(edm::View<pat::Muon>::const_iterator iMuon=pMu12->begin(); iMuon!=pMu12->end();++iMuon) // loop through Mu1 and mu2 object
         { 
           double dRCurr = deltaR(*iMuon, TO);
-          if (dRCurr < dRCut_ && checkMatchMu1_ && iMuon->pt() == highestMuPt) // if dR bettween obj and iMuon is small enough, and we require highest pt match and that iMuon is highest pt
+          if (dRCurr < dRCut_ && checkMatchMu1_ && (iMuon->pt() - highestMuPt) > .001 ) // if dR bettween obj and iMuon is small enough, and we require highest pt match and that iMuon is highest pt
           {
             checkPassEvent = true;
+	    checkObjMatch = true;
             nMatches++;
             matchedMuPt = iMuon->pt();
             muonColl->push_back(*iMuon);
@@ -194,6 +195,7 @@ TrigMuMatcher::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
           else if (dRCurr < dRCut_ && !checkMatchMu1_ &&  iMuon->pt() > matchedMuPt) // The last req only matters if 2 muons match the same trigger object
           {
             checkPassEvent = true;
+            checkObjMatch = true;
             nMatches++;
             matchedMuPt = iMuon->pt();
             muonColl->push_back(*iMuon);

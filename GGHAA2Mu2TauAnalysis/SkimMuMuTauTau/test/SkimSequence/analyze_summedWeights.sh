@@ -1,15 +1,16 @@
 #!/bin/bash
 
 #parse arguments
-if [ $# -ne 3 ]
+if [ $# -ne 4 ]
     then
-    echo "Usage: ./generate.sh cfg_name script_name queue "
+    echo "Usage: ./generate.sh cfg_name script_name queue name_addon"
     exit 0
 fi
 
 cfg_name=$1
 script_name=$2
 queue=$3
+name_addon=$4
 input="/afs/cern.ch/user/k/ktos/NewSkimDir/CMSSW_8_0_30/src/GGHAA2Mu2TauAnalysis/SkimMuMuTauTau/test/SkimSequence/SummedWeightsFiles/SummedWeights_InputFile.txt"
 while IFS= read -r line
 do
@@ -17,7 +18,8 @@ do
   echo ""
   echo "line=$line"
   noSuffix="${line%.*}"
-  dir="${noSuffix#INPUT_FILE_}_SumW"
+  dir="${noSuffix#INPUT_FILE_}"
+  dir="${dir}${name_addon}"
   echo "dir=$dir"
   mkdir -p BSUB/$dir
   cd BSUB/$dir

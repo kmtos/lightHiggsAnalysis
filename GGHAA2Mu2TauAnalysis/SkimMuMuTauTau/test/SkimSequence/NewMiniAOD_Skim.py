@@ -104,6 +104,12 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 #require event to fire IsoMu24_eta2p1
 process.TriggerAnalyzer0=cms.EDAnalyzer("TriggerAnalyzer")
 
+process.lumiTree = cms.EDAnalyzer("LumiTree",
+    genEventInfo = cms.InputTag("generator"),
+    nevents = cms.InputTag('lumiSummary','numberOfEvents'),
+    summedWeights = cms.InputTag('lumiSummary','sumOfWeightedEvents')
+)	
+
 process.HLTEle =cms.EDFilter("HLTHighLevel",
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     #HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" ),
@@ -139,17 +145,12 @@ process.PreMuons = cms.EDFilter('PTETACUT',
 
 process.AllPreMuonsID=cms.EDFilter(
   'MuonsID',
-  muonTag=cms.InputTag('PreMuons'),
-  muonID=cms.string('medium')
+  muonTag = cms.InputTag('PreMuons'),
+  muonID = cms.string('medium'),
+  relIsoCutVal = cms.double(0.25),
+  passRelIso = cms.bool(True) #False = Non-Iso DiMu, True = Iso-DiMu
 )
-process.Isolate=cms.EDFilter('CustomDimuonSelector',
-                                muonTag=cms.InputTag('AllPreMuonsID'),
-                                isoMax=cms.double(0.25),
-                                isoMin=cms.double(0.0),
-                                baseMuonTag=cms.InputTag('slimmedMuons'),
-                                particleFlow=cms.InputTag('particleFlow'),
-                                minNumObjsToPassFilter=cms.uint32(2)
-)
+
 process.HighestPtAndMuonSignDRSelector=cms.EDFilter(
                 'HighestPtAndMuonSignDRSelector',
                 muonTag=cms.InputTag('AllPreMuonsID'),
@@ -174,8 +175,8 @@ process.TrigMuMatcher=cms.EDFilter(
 
 process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
                               Mu1Mu2=cms.InputTag('HighestPtAndMuonSignDRSelector'),
-                              minMass=cms.double(7.5),
-                              maxMass=cms.double(12)
+                              minMass=cms.double(81), #3   or 81
+                              maxMass=cms.double(101) #3.2 or 101
 )
 
 process.Mu3=cms.EDFilter('VetoMuon',
@@ -205,7 +206,6 @@ process.muHadTauDMSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-    #overlapMuonTag1  = cms.InputTag('TriggerSelector'),
     overlapMuonTag = cms.InputTag('HighestPtAndMuonSignDRSelector'),
     muons = cms.InputTag('Mu3ID'),
     tauDiscriminatorTags = cms.vstring('decayModeFinding'),
@@ -215,27 +215,24 @@ process.muHadTauDMSelector = cms.EDFilter(
     isoMax = cms.double(-1.0),
     dR = cms.double(0.5),
     minNumObjsToPassFilter = cms.uint32(1),
-    diTaudR = cms.double(0.8),
-    outFileName=cms.string('muHadTauSelector.root')
+    diTaudR = cms.double(0.8)
     )
 
 process.muHadTauDMIsoSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('muHadTauDMSelector'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-    #overlapMuonTag  = cms.InputTag('TriggerSelector'),
     overlapMuonTag = cms.InputTag('HighestPtAndMuonSignDRSelector'),
     muons = cms.InputTag('Mu3ID'),
 #    tauDiscriminatorTags = cms.vstring('ByMediumIsolationMVA3oldDMwoLT'),
     tauDiscriminatorTags = cms.vstring('byMediumIsolationMVArun2v1DBoldDMwLT'),
-    passDiscriminator = cms.bool(True),
+    passDiscriminator = cms.bool(False),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
     dR = cms.double(0.5),
     minNumObjsToPassFilter = cms.uint32(1),
-    diTaudR = cms.double(0.8),
-    outFileName=cms.string('muHadTauSelector.root')
+    diTaudR = cms.double(0.8)
     )
 
 
@@ -243,18 +240,18 @@ process.muHadTauDMIsoSelector = cms.EDFilter(
 process.GetRunNumber = cms.EDAnalyzer('GetRunNumber')
 #sequences
 process.MuMuSequenceSelector=cms.Sequence(
-        #process.TriggerAnalyzer0*
+        process.lumiTree*
         process.HLTEle*
         process.RochesterCorr*
         process.PreMuons*
         process.AllPreMuonsID*
         process.HighestPtAndMuonSignDRSelector*
-        process.TrigMuMatcher*
-        process.Mu3*
-        process.Mu3ID*
+        process.TrigMuMatcher#*
+#        process.Mu3*
+#        process.Mu3ID*
 #        process.MassCut*
-        process.muHadTauDMSelector*
-        process.muHadTauDMIsoSelector
+#        process.muHadTauDMSelector*
+#        process.muHadTauDMIsoSelector
 )
 
 

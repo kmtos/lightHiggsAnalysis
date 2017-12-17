@@ -9,6 +9,6 @@ do
   valueLine=$(grep "value=" ${i}/LSF*/STDOUT | tail -1)
   value=${valueLine##*=}
   echo "  $value"
-  echo "${dirName} $value" >>SummedWeightsValues.out
+  echo "${dirName} $value" >> SummedWeightsFiles/SummedWeightsValues.out
 done
 

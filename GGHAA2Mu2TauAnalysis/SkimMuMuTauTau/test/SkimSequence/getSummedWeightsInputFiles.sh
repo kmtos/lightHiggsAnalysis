@@ -4,7 +4,7 @@ inputFilePrefix="INPUT_FILE_"
 rootFilePrefix="root://eoscms/"
 for i in /eos/cms/store/group/phys_higgs/HiggsExo/ktos/*
 do 
-  dirLs="$(eos ls $i | grep "NOV27")"
+  dirLs="$(eos ls $i | grep "DEC8")"
   if [ -z "$dirLs" ]; then
     echo "Skipped $i"
     continue
