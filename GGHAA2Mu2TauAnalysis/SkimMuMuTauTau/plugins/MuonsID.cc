@@ -63,8 +63,6 @@ class MuonsID : public edm::EDFilter {
        // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon> > muonTag_; 
   std::string muonID_;
-  double relIsoCutVal_;
-  bool passRelIso_;
 };
 
 //
@@ -80,9 +78,7 @@ class MuonsID : public edm::EDFilter {
 //
 MuonsID::MuonsID(const edm::ParameterSet& iConfig):
   muonTag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonTag"))),
-  muonID_(iConfig.getParameter<std::string>("muonID")),
-  relIsoCutVal_(iConfig.getParameter<double>("relIsoCutVal")),
-  passRelIso_(iConfig.getParameter<bool>("passRelIso"))
+  muonID_(iConfig.getParameter<std::string>("muonID"))
 {
    //now do what ever initialization is needed
    produces<std::vector<pat::Muon> >();
@@ -119,15 +115,11 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      for(edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
      {
-       if (iMuon->muonBestTrack()->dxy() > 0.5 || iMuon->muonBestTrack()->dz() > 1.0)
-         continue;
-       reco::MuonPFIsolation iso = iMuon->pfIsolationR04(); 
-       double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt) ) / iMuon->pt();
-       if (muon::isLooseMuon(*iMuon) && ((reliso < relIsoCutVal_ && passRelIso_) || (reliso > relIsoCutVal_ && !passRelIso_)))
+       if (muon::isLooseMuon(*iMuon) && iMuon->muonBestTrack()->dxy() < 0.5 && iMuon->muonBestTrack()->dz() < 1.0)
        {
          CountMuon+=1;
          muonColl->push_back(*iMuon);
-       }//if isLooseMuon
+       }//if
      } //for iMuon
    }// if muonID
    else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon1 ID.\n";
