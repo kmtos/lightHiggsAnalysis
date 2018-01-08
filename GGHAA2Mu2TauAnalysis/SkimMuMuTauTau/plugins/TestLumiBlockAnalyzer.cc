@@ -113,7 +113,7 @@ TestLumiBlockAnalyzer::beginJob()
 void 
 TestLumiBlockAnalyzer::endJob() 
 {
-    std::cout  << "\tvalue=" << value << std::endl;
+    std::cout  << std::fixed << "\tvalue=" << value << std::endl;
 }
 
 void TestLumiBlockAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& Lumi, edm::EventSetup const& iSetup) { }

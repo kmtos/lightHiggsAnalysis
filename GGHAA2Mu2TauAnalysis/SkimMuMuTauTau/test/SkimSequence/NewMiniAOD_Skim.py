@@ -240,7 +240,7 @@ process.muHadTauDMIsoSelector = cms.EDFilter(
     muons = cms.InputTag('Mu3ID'),
 #    tauDiscriminatorTags = cms.vstring('ByMediumIsolationMVA3oldDMwoLT'),
     tauDiscriminatorTags = cms.vstring('byMediumIsolationMVArun2v1DBoldDMwLT'),
-    passDiscriminator = cms.bool(False),
+    passDiscriminator = cms.bool(True),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
@@ -260,15 +260,15 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.PreMuons*
         process.MuonsIDdxydz*
         process.TrigMuMatcher*
-	process.GetMuOne#*
-#        process.Mu2Iso*
-#        process.GetMuTwo*
-#        process.DiMuSigndRSelector*
-#        process.Mu3*
-#        process.Mu3ID*
+	process.GetMuOne*
+        process.Mu2Iso*
+        process.GetMuTwo*
+        process.DiMuSigndRSelector*
+        process.Mu3*
+        process.Mu3ID*
 #        process.MassCut*
-#        process.muHadTauDMSelector#*
-#        process.muHadTauDMIsoSelector
+        process.muHadTauDMSelector*
+        process.muHadTauDMIsoSelector
 )
 
 
