@@ -46,6 +46,12 @@
 #include "DataFormats/PatCandidates/interface/PATObject.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/Tau.h"
 //
 // class declaration
 //
@@ -183,17 +189,19 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<edm::View<pat::Muon> > pMuons;
   iEvent.getByToken(muons_, pMuons);
 
+/*
   //fill STL container with taus passing specified discriminators in specified eta and pT range
   std::vector<pat::Tau> taus = pTaus.isValid() ? 
     Common::getPATTaus(pTaus, pBaseTaus, tauDiscriminatorTags_, tauHadIsoTag_, pTMin_, etaMax_, passDiscriminator_, isoMax_) : 
     Common::getPATTaus(pBaseTaus, tauDiscriminatorTags_, tauHadIsoTag_, pTMin_, etaMax_, passDiscriminator_, isoMax_);
+*/
 
   if (pOverlapMuons->size() < 1)
     return (0 >= minNumObjsToPassFilter_);
 
   //loop over selected taus
   unsigned int nPassingTaus = 0;
-  for (std::vector<pat::Tau>::const_iterator iTau = taus.begin(); iTau != taus.end(); ++iTau) 
+  for (std::vector<pat::Tau>::const_iterator iTau = pBaseTaus->begin(); iTau != pBaseTaus->end(); ++iTau) 
   {
     //fid the nearest overlap candidate to the tau
     double minDR = 1234567891123.0;
@@ -214,11 +222,26 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     if (reco::deltaR(*iTau, nearestMuon) > dROverlapMin_) 
     {
       double bestdR = 1000000000;
+      pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(iTau->leadChargedHadrCand().get() );
+      if ( fabs(iTau->dxy() ) <= 0.2 && fabs(packedLeadTauCand->dz() ) <= 0.5)
+	continue;
+      bool passDisc = false;
+      for (unsigned int i = 0; i < tauDiscriminatorTags_.size(); i++)
+      {
+        double discVal = iTau->tauID(tauDiscriminatorTags_[i]);
+        if ( ( discVal < .5 && !passDiscriminator_) || ( discVal >= .5 && passDiscriminator_)  )
+	  passDisc = true;
+      }//for i
+      if (!passDisc)
+        continue;
+      if (iTau->pt() < pTMin_ || fabs(iTau->eta()) > etaMax_)
+        continue;
       for (edm::View<pat::Muon>::const_iterator iMu = pMuons->begin(); iMu != pMuons->end(); ++iMu)
       {
         double dR = reco::deltaR(*iTau, *iMu);
         histos1D_["TauHadAllMudR"]->Fill(dR );
-        if (dR < diTaudRMax_ && dR < bestdR)
+	double checkCharge = iMu->pdgId() * iTau->pdgId();
+        if (dR < diTaudRMax_ && dR < bestdR && checkCharge < 0)
           bestdR = dR;
       }//for iMu
       histos1D_["TauHadTauMudR"]->Fill(bestdR );
@@ -232,7 +255,7 @@ bool CustomTauSelector<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
   //if not enough taus passing cuts were found in this event, stop processing
   histos1D_["NPassing"]->Fill((nPassingTaus >= minNumObjsToPassFilter_));
-  histos2D_["NTauPassvsNTau"]->Fill(nPassingTaus, taus.size() );
+  histos2D_["NTauPassvsNTau"]->Fill(nPassingTaus, pBaseTaus->size() );
   return (nPassingTaus >= minNumObjsToPassFilter_);
 }
 

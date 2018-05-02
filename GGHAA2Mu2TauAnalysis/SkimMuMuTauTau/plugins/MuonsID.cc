@@ -63,6 +63,7 @@ class MuonsID : public edm::EDFilter {
        // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon> > muonTag_; 
   std::string muonID_;
+  std::map<std::string, TH1D*> histos1D_;
 };
 
 //
@@ -78,7 +79,8 @@ class MuonsID : public edm::EDFilter {
 //
 MuonsID::MuonsID(const edm::ParameterSet& iConfig):
   muonTag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonTag"))),
-  muonID_(iConfig.getParameter<std::string>("muonID"))
+  muonID_(iConfig.getParameter<std::string>("muonID")),
+  histos1D_()
 {
    //now do what ever initialization is needed
    produces<std::vector<pat::Muon> >();
@@ -109,8 +111,10 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(muonTag_, pMuons);
    int runNum = iEvent.run();
    std::auto_ptr<std::vector<pat::Muon> > muonColl(new std::vector<pat::Muon> );
+
    if (pMuons->size() < 1)
      return 0;
+
    if (muonID_=="medium")
    {
      for(edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
@@ -121,7 +125,7 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                          iMuon->combinedQuality().chi2LocalPosition < 12 && iMuon->combinedQuality().trkKink < 20; 
          bool isMedium = muon::isLooseMuon(*iMuon) && iMuon->innerTrack()->validFraction() > 0.8 && 
                          muon::segmentCompatibility(*iMuon) > (goodGlob ? 0.303 : 0.451);
-         if (iMuon->muonBestTrack()->dxy() < 0.5 && iMuon->muonBestTrack()->dz() < 1.0 && isMedium)
+         if ( fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz() ) <= 0.5 && isMedium)
          {
            CountMuon+=1;
            muonColl->push_back(*iMuon);
@@ -129,7 +133,7 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }//if EraG or H
        else
        {
-         if (muon::isMediumMuon(*iMuon) && iMuon->muonBestTrack()->dxy() < 0.5 && iMuon->muonBestTrack()->dz() < 1.0)
+         if (muon::isMediumMuon(*iMuon) && fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz()) <= 0.5)
          {
            CountMuon+=1;
            muonColl->push_back(*iMuon);
@@ -137,9 +141,31 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }//if Era A->F
      } //for iMuon
    }// if muonID
+   else if (muonID_ == "loose")
+   {
+     for (edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
+     {
+       histos1D_["dz"]->Fill(iMuon->muonBestTrack()->dz() );
+       histos1D_["dxy"]->Fill(iMuon->muonBestTrack()->dxy() );
+       if ( fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz()) <=0.5  && iMuon->isLooseMuon() ) 
+       {
+	 CountMuon += 1;
+	 muonColl->push_back(*iMuon);
+       }//if
+       else
+       {
+         if (fabs(iMuon->muonBestTrack()->dxy() ) > .2)
+	   std::cout << "dxy= " << fabs(iMuon->muonBestTrack()->dxy() ) << std::endl;
+         else if (fabs(iMuon->muonBestTrack()->dz()) > .5)
+	   std::cout << "\tdz=" << fabs(iMuon->muonBestTrack()->dz() ) << std::endl;
+         else if (iMuon->isLooseMuon())
+	   std::cout <<  "\tLooseMuon=" << iMuon->isLooseMuon() << std::endl;
+       }//else
+     } //for iMuon
+   }//else if
    else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon1 ID.\n";
 
-   if (CountMuon>=2)
+   if (CountMuon >= 3)
    {
      iEvent.put(muonColl);
      return true;
@@ -151,8 +177,10 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 MuonsID::beginJob()
 {
+  edm::Service<TFileService> fileService;
+  histos1D_["dz"]=fileService->make<TH1D>("dz","dz of Muons",10000,-50,50);
+  histos1D_["dxy"]=fileService->make<TH1D>("dxy","dxy of Muons",10000,-50,50);
 }
-
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 MuonsID::endJob() {

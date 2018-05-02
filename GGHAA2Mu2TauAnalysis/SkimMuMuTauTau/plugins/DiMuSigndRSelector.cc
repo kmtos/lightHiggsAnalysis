@@ -122,17 +122,23 @@ DiMuSigndRSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<pat::Muon> > pMuons;
   iEvent.getByToken(muonsTag_, pMuons); 
   
+  int nPass = 0;
   for(edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
   {
     double dR = deltaR(*iMuon, mu1);
     if ( (dR < dRCut_ && passdR_) || (dR > dRCut_ && !passdR_) )
     {
       if (  (oppositeSign_ && mu1.pdgId() == (-1)*iMuon->pdgId() )  ||  (!oppositeSign_ && mu1.pdgId()==iMuon->pdgId() )  )   
+      {
         muonColl->push_back(*iMuon);
+        nPass++;
+      }//if
     }//if dR
   }//for iMuon
 
   iEvent.put(muonColl);
+  if (nPass == 0) 
+    return false;
   return true;
 }
 // ------------ method called once each job just before starting event loop  ------------

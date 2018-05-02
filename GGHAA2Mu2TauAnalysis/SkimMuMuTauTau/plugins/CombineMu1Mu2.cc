@@ -63,6 +63,7 @@ class CombineMu1Mu2 : public edm::EDFilter {
       // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon> > mu1Tag_; 
   edm::EDGetTokenT<edm::View<pat::Muon> > mu2Tag_; 
+  std::map<std::string, TH1D*> histos1D_;
 };
 
 //
@@ -78,7 +79,8 @@ class CombineMu1Mu2 : public edm::EDFilter {
 //
 CombineMu1Mu2::CombineMu1Mu2(const edm::ParameterSet& iConfig):
   mu1Tag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("mu1Tag"))),
-  mu2Tag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("mu2Tag")))
+  mu2Tag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("mu2Tag"))),
+  histos1D_()
 {
   //now do what ever initialization is needed
   produces<std::vector<pat::Muon> >();
@@ -112,6 +114,8 @@ CombineMu1Mu2::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(mu2Tag_, pMu2);
   pat::Muon mu2 = pMu2->at(0);
 
+  reco::LeafCandidate::LorentzVector diMuP4 = mu1.p4() + mu2.p4();
+  histos1D_["Mu1Mu2Mass"]->Fill(diMuP4.M() );
 
   muonColl->push_back(mu1);
   muonColl->push_back(mu2);
@@ -122,6 +126,8 @@ CombineMu1Mu2::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 CombineMu1Mu2::beginJob()
 {
+  edm::Service<TFileService> fileService;
+  histos1D_["Mu1Mu2Mass"]=fileService->make<TH1D>("Mu1Mu2Mass","#mu_{1} #mu_{2} Mass",1500, 0,150);
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

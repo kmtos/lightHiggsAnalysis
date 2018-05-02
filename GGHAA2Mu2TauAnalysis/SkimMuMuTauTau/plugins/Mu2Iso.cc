@@ -63,6 +63,7 @@ class Mu2Iso : public edm::EDFilter {
       // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon> > muonTag_; 
   edm::EDGetTokenT<edm::View<pat::Muon> > mu1Tag_; 
+  double ptCut_;
   double relIsoCutVal_;
   bool passRelIso_;
 };
@@ -81,6 +82,7 @@ class Mu2Iso : public edm::EDFilter {
 Mu2Iso::Mu2Iso(const edm::ParameterSet& iConfig):
   muonTag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonTag"))),
   mu1Tag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("mu1Tag"))),
+  ptCut_(iConfig.getParameter<double>("ptCut")),
   relIsoCutVal_(iConfig.getParameter<double>("relIsoCutVal")),
   passRelIso_(iConfig.getParameter<bool>("passRelIso"))
 {
@@ -121,6 +123,8 @@ Mu2Iso::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
   {
     if ( deltaR(*iMuon, mu1) < .1 && fabs(iMuon->pt() - mu1.pt()) < .01 )
+      continue;
+    if (iMuon->pt() < ptCut_)
       continue;
     reco::MuonPFIsolation iso = iMuon->pfIsolationR04(); 
     double reliso = (iso.sumChargedHadronPt+TMath::Max(0.,iso.sumNeutralHadronEt+iso.sumPhotonEt-0.5*iso.sumPUPt) ) / iMuon->pt();
