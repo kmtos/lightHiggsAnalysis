@@ -122,7 +122,7 @@ process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
 runMetCorAndUncFromMiniAOD(process,
-                           isData=False, # (or False),
+                           isData=True, # (or False),
                            jetCollUnskimmed = "updatedPatJetsUpdatedJEC"
 )
 
@@ -146,7 +146,7 @@ process.RandomNumberGeneratorService = cms.Service(
 process.RochesterCorr=cms.EDProducer("Rochester",
     muonCollection = cms.InputTag("slimmedMuons"),
     identifier = cms.string("DATA_80X_13TeV"),
-    isData = cms.bool(False),
+    isData = cms.bool(True),
     initialSeed = cms.untracked.uint32(89),
     engineName = cms.untracked.string('TRandom3'),
     fp=cms.FileInPath("Rochester/Rochester/data/rcdata.2016.v3/config.txt")
@@ -188,7 +188,7 @@ process.Mu2Iso=cms.EDFilter(
   mu1Tag = cms.InputTag('GetMuOne'),
   ptCut = cms.double(0.0),
   relIsoCutVal = cms.double(0.25), # .25 for iso, -1 for ignoring iso
-  passRelIso = cms.bool(True) #False = Non-Iso DiMu, True = Iso-DiMu
+  passRelIso = cms.bool(False) #False = Non-Iso DiMu, True = Iso-DiMu
 )
 
 process.DiMuSigndRSelector=cms.EDFilter(
@@ -225,6 +225,7 @@ process.Mu3=cms.EDFilter('VetoMuon',
 	minNumObjsToPassFilter=cms.uint32(1)
 )
 
+
 process.muHadTauDMIsoSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
@@ -235,7 +236,7 @@ process.muHadTauDMIsoSelector = cms.EDFilter(
     minMVATag = cms.string("byIsolationMVArun2v1DBoldDMwLTraw"),
     tauDiscriminatorTags = cms.vstring('byMediumIsolationMVArun2v1DBdR03oldDMwLT'),
     passDiscriminator = cms.bool(True),
-    checkMinMVARawBefore = cms.bool(False),
+    checkMinMVARawBefore = cms.bool(True),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
@@ -255,7 +256,7 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.PreMuons*
         process.MuonsIDdxydz*
         process.TrigMuMatcher*
-        process.GetMuOne*
+	process.GetMuOne*
         process.Mu2Iso*
         process.DiMuSigndRSelector*
         process.GetMuTwo*
@@ -263,7 +264,6 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.Mu3*
 #        process.Mu3ID*
 #        process.MassCut*
-#        process.muHadTauDMSelector*
         process.muHadTauDMIsoSelector
 )
 

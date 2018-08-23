@@ -123,7 +123,7 @@ VetoMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     unsigned int count=0;
     for(edm::View<pat::Muon>::const_iterator iVetoMuons = pVetoMuons->begin(); iVetoMuons != pVetoMuons->end(); ++iVetoMuons)
     {
-      if(deltaR(*iMuon, *iVetoMuons) < 0.0001 && ( (iMuon->pt()-iVetoMuons->pt()) / iVetoMuons->pt() ) < 0.0001)
+      if(deltaR(*iMuon, *iVetoMuons) < 0.01 && ( (iMuon->pt()-iVetoMuons->pt()) / iVetoMuons->pt() ) < 0.01)
         continue;
       else if(deltaR(*iMuon, *iVetoMuons) < dRCut_)
         continue;

@@ -136,7 +136,7 @@ process.RochesterCorr=cms.EDProducer("Rochester",
 )
 
 process.EventIdFilter = cms.EDFilter('EventIdFilter',
-	    filename = cms.FileInPath('Rochester/Rochester/data/h125a7_Events_in_Devin_Not_Kyle.txt') 
+	    filename = cms.FileInPath('Rochester/Rochester/data/h125a21_Events_in_Devin_Not_Kyle.txt') 
 )
 
 process.PreMuons = cms.EDFilter('PTETACUT',
@@ -149,7 +149,8 @@ process.PreMuons = cms.EDFilter('PTETACUT',
 process.MuonsIDdxydz=cms.EDFilter(
   'MuonsID',
   muonTag = cms.InputTag('PreMuons'),
-  muonID = cms.string('loose')
+  muonID = cms.string('loose'),
+  vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
 )
 
 process.TrigMuMatcher=cms.EDFilter(
@@ -211,47 +212,17 @@ process.Mu3=cms.EDFilter('VetoMuon',
 	minNumObjsToPassFilter=cms.uint32(1)
 )
 
-process.Mu3ID = cms.EDFilter('CustomMuonSelector',
-        baseMuonTag = cms.InputTag('slimmedMuons'),
-        muonTag = cms.InputTag('Mu3'),
-        vtxTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
-        muonID = cms.string('loose'),
-        PFIsoMax = cms.double(-1),
-        detectorIsoMax = cms.double(-1.0),
-        PUSubtractionCoeff = cms.double(0.5),
-        usePFIso = cms.bool(True),
-        passIso = cms.bool(True),
-        etaMax = cms.double(2.4),
-        minNumObjsToPassFilter = cms.uint32(1)
-)
-
-#find taus in |eta| < 2.4 matched to muon-tagged cleaned jets
-#this will produce a ref to the cleaned tau collection
-process.muHadTauDMSelector = cms.EDFilter(
+process.muHadTauDMIsoSelector = cms.EDFilter(
     'CustomTauSepFromMuonSelector',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-    overlapMuonTag = cms.InputTag('Mu1Mu2'),
-    muons = cms.InputTag('Mu3'),
-    tauDiscriminatorTags = cms.vstring('decayModeFinding'),
-    passDiscriminator = cms.bool(True),
-    pTMin = cms.double(10.0),
-    etaMax = cms.double(2.4),
-    isoMax = cms.double(-1.0),
-    dROverlapMin = cms.double(0.8),
-    minNumObjsToPassFilter = cms.uint32(1),
-    diTaudRMax = cms.double(0.8)
-    )
-
-process.muHadTauDMIsoSelector = cms.EDFilter(
-    'CustomTauSepFromMuonSelector',
-    baseTauTag = cms.InputTag('muHadTauDMSelector'),
-    tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
+    vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
     overlapMuonTag = cms.InputTag('Mu1Mu2'),
     muons = cms.InputTag('Mu3'),
 #    tauDiscriminatorTags = cms.vstring('ByMediumIsolationMVA3oldDMwoLT'),
     tauDiscriminatorTags = cms.vstring('byMediumIsolationMVArun2v1DBoldDMwLT'),
     passDiscriminator = cms.bool(True),
+    checkMinMVARawBefore = cms.bool(True),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
     isoMax = cms.double(-1.0),
@@ -281,7 +252,6 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.Mu3*
 ##        process.Mu3ID*
 ##        process.MassCut*
-        process.muHadTauDMSelector*
         process.muHadTauDMIsoSelector
 )
 
@@ -293,11 +263,11 @@ process.antiSelectionSequence = cms.Sequence(process.MuMuSequenceSelector
 process.antiSelectedOutput = cms.OutputModule(
     "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p')),
-    fileName = cms.untracked.string('h125a7_DevinsEventsOnly.root')
+    fileName = cms.untracked.string('h125a21_DevinsEventsOnly.root')
     )
 #sequences
 process.TFileService = cms.Service("TFileService",
-    fileName =  cms.string('h125a7_DevinsEventsOnly_TH.root')
+    fileName =  cms.string('h125a21_DevinsEventsOnly_TH.root')
 )
 #no selection path
 process.p = cms.Path(process.antiSelectionSequence)

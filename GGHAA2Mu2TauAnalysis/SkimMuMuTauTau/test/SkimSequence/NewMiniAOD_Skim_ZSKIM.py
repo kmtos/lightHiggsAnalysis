@@ -110,6 +110,22 @@ process.lumiTree = cms.EDAnalyzer("LumiTree",
     summedWeights = cms.InputTag('lumiSummary','sumOfWeightedEvents')
 )	
 
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJets'),
+   labelName = 'UpdatedJEC',
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')  # Update: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual corrections (always set to 1)
+)
+process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+runMetCorAndUncFromMiniAOD(process,
+                           isData=False, # (or False),
+                           jetCollUnskimmed = "updatedPatJetsUpdatedJEC"
+)
+
 process.HLTEle =cms.EDFilter("HLTHighLevel",
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     #HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" ),
@@ -140,13 +156,14 @@ process.PreMuons = cms.EDFilter('PTETACUT',
             muonTag=cms.InputTag("RochesterCorr","RochesterMu", "MINIAODSKIM"),
             Eta=cms.double(2.4),
             Pt=cms.double(3.0),
-            minNumObjsToPassFilter=cms.uint32(2)
+            minNumObjsToPassFilter=cms.uint32(3)
 )
 
 process.MuonsIDdxydz=cms.EDFilter(
   'MuonsID',
   muonTag = cms.InputTag('PreMuons'),
-  muonID = cms.string('loose')
+  muonID = cms.string('loose'),
+  vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
 )
 
 process.TrigMuMatcher=cms.EDFilter(
@@ -157,7 +174,7 @@ process.TrigMuMatcher=cms.EDFilter(
         triggerObjects = cms.InputTag("selectedPatTrigger"),
         trigNames = cms.vstring("HLT_IsoMu24_v","HLT_IsoTkMu24_v"),
         dRCut = cms.double(.15),
-        mu1PtCut = cms.double(25.0)
+        mu1PtCut = cms.double(26.0)
 )
 
 process.GetMuOne = cms.EDFilter(
@@ -171,7 +188,7 @@ process.Mu2Iso=cms.EDFilter(
   mu1Tag = cms.InputTag('GetMuOne'),
   ptCut = cms.double(0.0),
   relIsoCutVal = cms.double(0.25), # .25 for iso, -1 for ignoring iso
-  passRelIso = cms.bool(False) #False = Non-Iso DiMu, True = Iso-DiMu
+  passRelIso = cms.bool(True) #False = Non-Iso DiMu, True = Iso-DiMu
 )
 
 process.DiMuSigndRSelector=cms.EDFilter(
@@ -184,8 +201,9 @@ process.DiMuSigndRSelector=cms.EDFilter(
 )
 
 process.GetMuTwo = cms.EDFilter(
-       'GetHighestPt',
-       muonTag = cms.InputTag('DiMuSigndRSelector')
+       'GetSmallestdR',
+       muonTag = cms.InputTag('DiMuSigndRSelector'),
+       matchedToTag = cms.InputTag("GetMuOne")
 )
 
 process.Mu1Mu2 = cms.EDFilter(
@@ -203,50 +221,21 @@ process.MassCut=cms.EDFilter('Mu1Mu2MassFilter',
 process.Mu3=cms.EDFilter('VetoMuon',
         muonTag=cms.InputTag('MuonsIDdxydz'),
         vetoMuonTag=cms.InputTag('Mu1Mu2'),
-	dRCut=cms.double(0.4),
+	dRCut=cms.double(0.5),
 	minNumObjsToPassFilter=cms.uint32(1)
-)
-
-process.Mu3ID = cms.EDFilter('CustomMuonSelector',
-        baseMuonTag = cms.InputTag('slimmedMuons'),
-        muonTag = cms.InputTag('Mu3'),
-        vtxTag = cms.InputTag('offlineSlimmedPrimaryVertices'),
-        muonID = cms.string('loose'),
-        PFIsoMax = cms.double(-1),
-        detectorIsoMax = cms.double(-1.0),
-        PUSubtractionCoeff = cms.double(0.5),
-        usePFIso = cms.bool(True),
-        passIso = cms.bool(True),
-        etaMax = cms.double(2.4),
-        minNumObjsToPassFilter = cms.uint32(1)
 )
 
 #find taus in |eta| < 2.4 matched to muon-tagged cleaned jets
 #this will produce a ref to the cleaned tau collection
 process.muHadTauDMSelector = cms.EDFilter(
-    'CustomTauSepFromMuonSelector',
+    'CustomTauSepFromMuonSelectorInclusive',
     baseTauTag = cms.InputTag('slimmedTausMuonCleaned'),
     tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
+    vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices'),
     overlapMuonTag = cms.InputTag('Mu1Mu2'),
     muons = cms.InputTag('Mu3'),
+    minMVATag = cms.string("byIsolationMVArun2v1DBoldDMwLTraw"),
     tauDiscriminatorTags = cms.vstring('decayModeFinding'),
-    passDiscriminator = cms.bool(True),
-    pTMin = cms.double(10.0),
-    etaMax = cms.double(2.4),
-    isoMax = cms.double(-1.0),
-    dROverlapMin = cms.double(0.8),
-    minNumObjsToPassFilter = cms.uint32(1),
-    diTaudRMax = cms.double(0.8)
-    )
-
-process.muHadTauDMIsoSelector = cms.EDFilter(
-    'CustomTauSepFromMuonSelector',
-    baseTauTag = cms.InputTag('muHadTauDMSelector'),
-    tauHadIsoTag = cms.string('hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw'),
-    overlapMuonTag = cms.InputTag('Mu1Mu2'),
-    muons = cms.InputTag('Mu3'),
-#    tauDiscriminatorTags = cms.vstring('ByMediumIsolationMVA3oldDMwoLT'),
-    tauDiscriminatorTags = cms.vstring('byMediumIsolationMVArun2v1DBoldDMwLT'),
     passDiscriminator = cms.bool(True),
     pTMin = cms.double(10.0),
     etaMax = cms.double(2.4),
@@ -267,16 +256,14 @@ process.MuMuSequenceSelector=cms.Sequence(
         process.PreMuons*
         process.MuonsIDdxydz*
         process.TrigMuMatcher*
-	process.GetMuOne#*
-#        process.Mu2Iso*
-#        process.DiMuSigndRSelector*
-#        process.GetMuTwo*
-#        process.Mu1Mu2*
-#        process.Mu3*
-#        process.Mu3ID*
-#        process.MassCut*
-#        process.muHadTauDMSelector#*
-#        process.muHadTauDMIsoSelector
+	process.GetMuOne*
+        process.Mu2Iso*
+        process.DiMuSigndRSelector*
+        process.GetMuTwo*
+        process.Mu1Mu2*
+        process.Mu3*
+        process.MassCut*
+        process.muHadTauDMSelector#*
 )
 
 

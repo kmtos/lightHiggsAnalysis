@@ -63,6 +63,7 @@ class MuonsID : public edm::EDFilter {
        // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<pat::Muon> > muonTag_; 
   std::string muonID_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vertexToken_;
   std::map<std::string, TH1D*> histos1D_;
 };
 
@@ -80,6 +81,7 @@ class MuonsID : public edm::EDFilter {
 MuonsID::MuonsID(const edm::ParameterSet& iConfig):
   muonTag_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muonTag"))),
   muonID_(iConfig.getParameter<std::string>("muonID")),
+  vertexToken_(consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
   histos1D_()
 {
    //now do what ever initialization is needed
@@ -109,6 +111,11 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Handle<edm::View<pat::Muon> > pMuons;
    iEvent.getByToken(muonTag_, pMuons);
+
+   edm::Handle<std::vector<reco::Vertex> > vertices;
+   iEvent.getByToken(vertexToken_, vertices);
+   const reco::Vertex& pv = *vertices->begin();
+
    int runNum = iEvent.run();
    std::auto_ptr<std::vector<pat::Muon> > muonColl(new std::vector<pat::Muon> );
 
@@ -125,7 +132,7 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                          iMuon->combinedQuality().chi2LocalPosition < 12 && iMuon->combinedQuality().trkKink < 20; 
          bool isMedium = muon::isLooseMuon(*iMuon) && iMuon->innerTrack()->validFraction() > 0.8 && 
                          muon::segmentCompatibility(*iMuon) > (goodGlob ? 0.303 : 0.451);
-         if ( fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz() ) <= 0.5 && isMedium)
+         if ( fabs(iMuon->muonBestTrack()->dxy(pv.position() ) ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz(pv.position() ) ) <= 0.5 && isMedium)
          {
            CountMuon+=1;
            muonColl->push_back(*iMuon);
@@ -133,7 +140,7 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }//if EraG or H
        else
        {
-         if (muon::isMediumMuon(*iMuon) && fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz()) <= 0.5)
+         if (muon::isMediumMuon(*iMuon) && fabs(iMuon->muonBestTrack()->dxy(pv.position() ) ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz(pv.position() )) <= 0.5)
          {
            CountMuon+=1;
            muonColl->push_back(*iMuon);
@@ -145,22 +152,22 @@ MuonsID::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    {
      for (edm::View<pat::Muon>::const_iterator iMuon=pMuons->begin(); iMuon!=pMuons->end();++iMuon)
      {
-       histos1D_["dz"]->Fill(iMuon->muonBestTrack()->dz() );
-       histos1D_["dxy"]->Fill(iMuon->muonBestTrack()->dxy() );
-       if ( fabs(iMuon->muonBestTrack()->dxy() ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz()) <=0.5  && iMuon->isLooseMuon() ) 
+       histos1D_["dz"]->Fill(iMuon->muonBestTrack()->dz(pv.position()) );
+       histos1D_["dxy"]->Fill(iMuon->muonBestTrack()->dxy(pv.position()) );
+       if ( fabs(iMuon->muonBestTrack()->dxy(pv.position()) ) <= 0.2 && fabs(iMuon->muonBestTrack()->dz(pv.position()) ) <=0.5  && iMuon->isLooseMuon() ) 
        {
 	 CountMuon += 1;
 	 muonColl->push_back(*iMuon);
        }//if
-       else
-       {
-         if (fabs(iMuon->muonBestTrack()->dxy() ) > .2)
-	   std::cout << "dxy= " << fabs(iMuon->muonBestTrack()->dxy() ) << std::endl;
-         else if (fabs(iMuon->muonBestTrack()->dz()) > .5)
-	   std::cout << "\tdz=" << fabs(iMuon->muonBestTrack()->dz() ) << std::endl;
-         else if (iMuon->isLooseMuon())
-	   std::cout <<  "\tLooseMuon=" << iMuon->isLooseMuon() << std::endl;
-       }//else
+//       else
+//       {
+//         if (fabs(iMuon->muonBestTrack()->dxy(pv.position()) ) > .2)
+//	   std::cout << "dxy= " << fabs(iMuon->muonBestTrack()->dxy(pv.position()) ) << std::endl;
+//         else if (fabs(iMuon->muonBestTrack()->dz(pv.position() )) > .5)
+//	   std::cout << "\tdz=" << fabs(iMuon->muonBestTrack()->dz(pv.position()) ) << std::endl;
+//         else if (iMuon->isLooseMuon())
+//	   std::cout <<  "\tLooseMuon=" << iMuon->isLooseMuon() << std::endl;
+//       }//else
      } //for iMuon
    }//else if
    else throw cms::Exception("CustomMuonSelector") << "Error: unsupported muon1 ID.\n";

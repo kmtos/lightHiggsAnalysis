@@ -111,6 +111,22 @@ process.lumiTree = cms.EDAnalyzer("LumiTree",
     summedWeights = cms.InputTag('lumiSummary','sumOfWeightedEvents')
 )	
 
+from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
+updateJetCollection(
+   process,
+   jetSource = cms.InputTag('slimmedJets'),
+   labelName = 'UpdatedJEC',
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual']), 'None')  # Update: Safe to always add 'L2L3Residual' as MC contains dummy L2L3Residual correction (always set to 1)
+)
+
+process.jecSequence = cms.Sequence(process.patJetCorrFactorsUpdatedJEC * process.updatedPatJetsUpdatedJEC)
+from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
+
+runMetCorAndUncFromMiniAOD(process,
+                           isData=False, # (or False),
+                           jetCollUnskimmed = "updatedPatJetsUpdatedJEC"
+)
+
 process.HLTEle =cms.EDFilter("HLTHighLevel",
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     #HLTPaths = cms.vstring("HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*" ),
@@ -147,7 +163,8 @@ process.PreMuons = cms.EDFilter('PTETACUT',
 process.MuonsIDdxydz=cms.EDFilter(
   'MuonsID',
   muonTag = cms.InputTag('PreMuons'),
-  muonID = cms.string('loose')
+  muonID = cms.string('loose'),
+  vertexSrc = cms.InputTag('offlineSlimmedPrimaryVertices')
 )
 
 process.TrigMuMatcher=cms.EDFilter(
@@ -185,8 +202,9 @@ process.DiMuSigndRSelector=cms.EDFilter(
 )
 
 process.GetMuTwo = cms.EDFilter(
-       'GetHighestPt',
-       muonTag = cms.InputTag('DiMuSigndRSelector')
+      'GetSmallestdR',
+      muonTag = cms.InputTag('DiMuSigndRSelector'),
+      matchedToTag = cms.InputTag("GetMuOne")
 )
 
 process.Mu1Mu2 = cms.EDFilter(
